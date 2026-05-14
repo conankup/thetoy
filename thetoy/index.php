@@ -160,7 +160,8 @@ $is_admin_manager = in_array($_SESSION['role_id'], [1, 2]);
                             </div>
                         </div>
                     </div>
-
+                    <!-- ===== CHART + TOP PRODUCTS ===== -->
+                    <div class="row mb-4">
                         <?php if ($is_admin_manager): ?>
                         <!-- Chart -->
                         <div class="col-lg-7 mb-3">
