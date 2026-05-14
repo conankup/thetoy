@@ -9,7 +9,7 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
-// ตรวจสอบสิทธิ์: เฉพาะ Admin (1) และ บัญชี (2)
+// ตรวจสอบสิทธิ์เบื้องต้น: เฉพาะ Admin (1) และ บัญชี (2)
 if (!in_array($_SESSION['role_id'], [1, 2])) {
     echo json_encode(['status' => 'error', 'message' => 'ไม่มีสิทธิ์เข้าถึง']);
     exit;
@@ -17,7 +17,38 @@ if (!in_array($_SESSION['role_id'], [1, 2])) {
 
 $action = $_GET['action'] ?? $_POST['action'] ?? '';
 
+// จำกัดเฉพาะ Admin (1) สำหรับการจัดการการเบิกเงิน
+if (in_array($action, ['save_withdrawal', 'delete_withdrawal']) && $_SESSION['role_id'] != 1) {
+    echo json_encode(['status' => 'error', 'message' => 'เฉพาะผู้ดูแลระบบเท่านั้นที่สามารถจัดการการเบิกเงินได้']);
+    exit;
+}
+
 try {
+    if ($action == 'save_withdrawal') {
+        $owner_id = $_POST['owner_id'];
+        $amount = $_POST['amount'];
+        $withdrawal_date = $_POST['withdrawal_date'] ?? date('Y-m-d');
+        $note = $_POST['note'] ?? '';
+
+        if (empty($owner_id) || empty($amount)) {
+            echo json_encode(['status' => 'error', 'message' => 'กรุณากรอกข้อมูลให้ครบถ้วน']);
+            exit;
+        }
+
+        $stmt = $conn->prepare("INSERT INTO owner_withdrawals (owner_id, amount, withdrawal_date, note) VALUES (?, ?, ?, ?)");
+        $stmt->execute([$owner_id, $amount, $withdrawal_date, $note]);
+        echo json_encode(['status' => 'success']);
+        exit;
+    }
+
+    if ($action == 'delete_withdrawal') {
+        $id = $_POST['id'];
+        $stmt = $conn->prepare("DELETE FROM owner_withdrawals WHERE id = ?");
+        $stmt->execute([$id]);
+        echo json_encode(['status' => 'success']);
+        exit;
+    }
+
     if ($action == 'get_dashboard') {
         $mode = $_GET['mode'] ?? 'monthly'; // 'daily' or 'monthly'
         
@@ -67,10 +98,22 @@ try {
         $stmtOwner->execute([':start' => $start_date, ':end' => $end_date]);
         $ownerSales = $stmtOwner->fetchAll(PDO::FETCH_ASSOC);
 
-        // คำนวณ GP สำหรับแต่ละเจ้าของ
+        // ดึงข้อมูลการเบิกเงินในช่วงเวลาที่เลือก
+        $stmtWithdraw = $conn->prepare("
+            SELECT owner_id, SUM(amount) as total_withdrawn
+            FROM owner_withdrawals
+            WHERE withdrawal_date BETWEEN :start AND :end
+            GROUP BY owner_id
+        ");
+        $stmtWithdraw->execute([':start' => $start_date, ':end' => $end_date]);
+        $withdrawalsMap = $stmtWithdraw->fetchAll(PDO::FETCH_KEY_PAIR);
+
+        // คำนวณ GP และยอดเงินคงเหลือ สำหรับแต่ละเจ้าของ
         foreach ($ownerSales as &$os) {
             $os['gp_amount'] = round($os['total_sales'] * $os['gp_rate'] / 100, 2);
-            $os['net_amount'] = round($os['total_sales'] - $os['gp_amount'], 2);
+            $os['net_after_gp'] = round($os['total_sales'] - $os['gp_amount'], 2);
+            $os['total_withdrawn'] = isset($withdrawalsMap[$os['owner_id']]) ? floatval($withdrawalsMap[$os['owner_id']]) : 0;
+            $os['balance_due'] = round($os['net_after_gp'] - $os['total_withdrawn'], 2);
         }
         unset($os);
 

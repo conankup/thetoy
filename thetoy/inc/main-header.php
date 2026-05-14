@@ -18,6 +18,7 @@
                   case 'daily_reconciliations.php': 
                   case 'stock_count.php': 
                       $page_title_display = 'นับสต๊อก & ปิดยอดรายวัน'; break;
+                  case 'withdrawals.php': $page_title_display = 'เบิกเงินเจ้าของสินค้า'; break;
                   case 'user-settings.php': $page_title_display = 'ตั้งค่าบัญชีผู้ใช้'; break;
               }
               ?>

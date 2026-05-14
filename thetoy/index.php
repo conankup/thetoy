@@ -241,14 +241,14 @@ checkRole([1, 2]);
                         <div class="d-flex flex-wrap align-items-center justify-content-between">
                             <div class="d-flex align-items-center flex-wrap" style="gap: 14px;">
                                 <span class="filter-label"><i class="mdi mdi-calendar-search"></i> มุมมอง:</span>
-                                <button type="button" class="btn btn-outline-secondary btn-mode" data-mode="daily" id="btnDaily"><i class="mdi mdi-calendar-today"></i> รายวัน</button>
-                                <button type="button" class="btn btn-outline-secondary btn-mode active" data-mode="monthly" id="btnMonthly"><i class="mdi mdi-calendar-month"></i> รายเดือน</button>
+                                <button type="button" class="btn btn-outline-secondary btn-mode active" data-mode="daily" id="btnDaily"><i class="mdi mdi-calendar-today"></i> รายวัน</button>
+                                <button type="button" class="btn btn-outline-secondary btn-mode" data-mode="monthly" id="btnMonthly"><i class="mdi mdi-calendar-month"></i> รายเดือน</button>
 
                                 <div class="d-flex align-items-center" style="gap: 10px; margin-left: 10px;">
-                                    <div id="filterDaily" style="display:none;">
+                                    <div id="filterDaily" class="d-flex">
                                         <input type="date" class="form-control" id="filterDate" value="<?= date('Y-m-d') ?>" max="<?= date('Y-m-d') ?>">
                                     </div>
-                                    <div id="filterMonthly" class="d-flex align-items-center" style="gap: 8px;">
+                                    <div id="filterMonthly" class="d-none align-items-center" style="gap: 8px;">
                                         <?php
                                         $thaiMonths = ['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
                                         $currentMonth = intval(date('m'));
@@ -340,9 +340,10 @@ checkRole([1, 2]);
                                                 <tr>
                                                     <th>เจ้าของสินค้า</th>
                                                     <th class="text-right">ยอดขาย (฿)</th>
-                                                    <th class="text-center">GP (%)</th>
                                                     <th class="text-right">หัก GP (฿)</th>
                                                     <th class="text-right">สุทธิ (฿)</th>
+                                                    <th class="text-right text-danger">เบิกแล้ว (฿)</th>
+                                                    <th class="text-right text-success">คงเหลือจ่าย (฿)</th>
                                                     <th class="text-center">จำนวนชิ้น</th>
                                                 </tr>
                                             </thead>
@@ -455,11 +456,11 @@ checkRole([1, 2]);
             $(this).addClass('active');
             var mode = $(this).data('mode');
             if (mode === 'daily') {
-                $('#filterDaily').show();
-                $('#filterMonthly').hide();
+                $('#filterDaily').removeClass('d-none').addClass('d-flex');
+                $('#filterMonthly').removeClass('d-flex').addClass('d-none');
             } else {
-                $('#filterDaily').hide();
-                $('#filterMonthly').show();
+                $('#filterDaily').removeClass('d-flex').addClass('d-none');
+                $('#filterMonthly').removeClass('d-none').addClass('d-flex');
             }
         });
 
@@ -539,43 +540,43 @@ checkRole([1, 2]);
         // ===== Render Owner Sales =====
         function renderOwnerSales(owners) {
             var body = '';
-            var totalSales = 0, totalGp = 0, totalNet = 0, totalQty = 0;
+            var totalSales = 0, totalGp = 0, totalNet = 0, totalWithdrawn = 0, totalBalance = 0, totalQty = 0;
 
             if (owners.length === 0) {
-                body = '<tr><td colspan="6" class="text-center text-muted py-4">ไม่มีข้อมูลในช่วงเวลาที่เลือก</td></tr>';
+                body = '<tr><td colspan="7" class="text-center text-muted py-4">ไม่มีข้อมูลในช่วงเวลาที่เลือก</td></tr>';
             } else {
                 owners.forEach(function(o) {
                     totalSales += parseFloat(o.total_sales);
                     totalGp += parseFloat(o.gp_amount);
-                    totalNet += parseFloat(o.net_amount);
+                    totalNet += parseFloat(o.net_after_gp);
+                    totalWithdrawn += parseFloat(o.total_withdrawn);
+                    totalBalance += parseFloat(o.balance_due);
                     totalQty += parseInt(o.total_qty_sold);
 
                     body += '<tr>';
                     body += '<td><strong>' + escapeHtml(o.owner_name) + '</strong></td>';
                     body += '<td class="text-right">' + formatDecimal(o.total_sales) + '</td>';
-                    body += '<td class="text-center">' + parseFloat(o.gp_rate).toFixed(0) + '%</td>';
-                    body += '<td class="text-right text-danger">' + formatDecimal(o.gp_amount) + '</td>';
-                    body += '<td class="text-right text-success"><strong>' + formatDecimal(o.net_amount) + '</strong></td>';
+                    body += '<td class="text-right text-muted">' + formatDecimal(o.gp_amount) + ' <small>(' + parseFloat(o.gp_rate).toFixed(0) + '%)</small></td>';
+                    body += '<td class="text-right">' + formatDecimal(o.net_after_gp) + '</td>';
+                    body += '<td class="text-right text-danger">-' + formatDecimal(o.total_withdrawn) + '</td>';
+                    body += '<td class="text-right text-success font-weight-bold">' + formatDecimal(o.balance_due) + '</td>';
                     body += '<td class="text-center">' + o.total_qty_sold + '</td>';
                     body += '</tr>';
                 });
             }
-
             $('#ownerTableBody').html(body);
 
-            if (owners.length > 0) {
-                var foot = '<tr>';
-                foot += '<td class="text-right"><strong>รวม</strong></td>';
-                foot += '<td class="text-right"><strong>' + formatDecimal(totalSales) + '</strong></td>';
-                foot += '<td></td>';
-                foot += '<td class="text-right text-danger"><strong>' + formatDecimal(totalGp) + '</strong></td>';
-                foot += '<td class="text-right text-success"><strong>' + formatDecimal(totalNet) + '</strong></td>';
-                foot += '<td class="text-center"><strong>' + totalQty + '</strong></td>';
-                foot += '</tr>';
-                $('#ownerTableFoot').html(foot);
-            } else {
-                $('#ownerTableFoot').html('');
-            }
+            // Footer
+            var foot = '<tr class="font-weight-bold bg-light">';
+            foot += '<td class="text-right">รวม</td>';
+            foot += '<td class="text-right">' + formatDecimal(totalSales) + '</td>';
+            foot += '<td class="text-right">' + formatDecimal(totalGp) + '</td>';
+            foot += '<td class="text-right">' + formatDecimal(totalNet) + '</td>';
+            foot += '<td class="text-right text-danger">-' + formatDecimal(totalWithdrawn) + '</td>';
+            foot += '<td class="text-right text-success">' + formatDecimal(totalBalance) + '</td>';
+            foot += '<td class="text-center">' + totalQty + '</td>';
+            foot += '</tr>';
+            $('#ownerTableFoot').html(foot);
         }
 
         // ===== Render Top Products =====
