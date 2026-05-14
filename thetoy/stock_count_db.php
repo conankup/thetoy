@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once '../connectDB.php';
+require_once 'audit_helper.php';
 
 header('Content-Type: application/json');
 
@@ -81,12 +82,19 @@ try {
             ':amt' => $amount,
             ':uid' => $user_id
         ]);
+        $new_id = $conn->lastInsertId();
+        writeAuditLog($conn, 'INSERT', 'daily_expenses', $new_id, "เพิ่มค่าใช้จ่าย: $desc จำนวน $amount บาท (บิล #$recon_id)");
         echo json_encode(['status' => 'success']);
         
     } elseif ($action == 'del_expense') {
         $id = intval($_POST['id']);
+        $stmtOld = $conn->prepare("SELECT * FROM daily_expenses WHERE id = ?");
+        $stmtOld->execute([$id]);
+        $oldData = $stmtOld->fetch(PDO::FETCH_ASSOC);
+
         $stmt = $conn->prepare("DELETE FROM daily_expenses WHERE id = :id");
         $stmt->execute([':id' => $id]);
+        writeAuditLog($conn, 'DELETE', 'daily_expenses', $id, "ลบค่าใช้จ่าย: " . ($oldData['description'] ?? 'ID '.$id), $oldData, null);
         echo json_encode(['status' => 'success']);
 
     } elseif ($action == 'complete_recon') {
@@ -158,6 +166,8 @@ try {
             WHERE c.daily_reconciliation_id = :rid
         ");
         $stmtUpdateFrontQty->execute([':rid' => $recon_id]);
+
+        writeAuditLog($conn, 'UPDATE', 'daily_reconciliations', $recon_id, "ปิดยอดประจำวันสำเร็จ (ส่วนต่าง: $diff บาท, หมายเหตุ: $difference_note)", null, $_POST);
 
         echo json_encode(['status' => 'success']);
 

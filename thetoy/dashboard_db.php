@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once '../connectDB.php';
+require_once 'audit_helper.php';
 
 header('Content-Type: application/json');
 
@@ -37,14 +38,29 @@ try {
 
         $stmt = $conn->prepare("INSERT INTO owner_withdrawals (owner_id, amount, withdrawal_date, note) VALUES (?, ?, ?, ?)");
         $stmt->execute([$owner_id, $amount, $withdrawal_date, $note]);
+        
+        $new_id = $conn->lastInsertId();
+        // Fetch owner name for better log
+        $oname = $conn->query("SELECT name FROM item_owners WHERE id = ".intval($owner_id))->fetchColumn();
+        writeAuditLog($conn, 'INSERT', 'owner_withdrawals', $new_id, "บันทึกการเบิกเงิน: $oname จำนวน $amount บาท", null, $_POST);
+        
         echo json_encode(['status' => 'success']);
         exit;
     }
 
     if ($action == 'void_withdrawal') {
         $id = $_POST['id'];
+        
+        // Fetch old data
+        $stmtOld = $conn->prepare("SELECT w.*, o.name as owner_name FROM owner_withdrawals w JOIN item_owners o ON w.owner_id = o.id WHERE w.id = ?");
+        $stmtOld->execute([$id]);
+        $oldData = $stmtOld->fetch(PDO::FETCH_ASSOC);
+
         $stmt = $conn->prepare("UPDATE owner_withdrawals SET status = 'void' WHERE id = ?");
         $stmt->execute([$id]);
+        
+        writeAuditLog($conn, 'VOID', 'owner_withdrawals', $id, "ยกเลิกการเบิกเงิน: " . ($oldData['owner_name'] ?? 'ID '.$id) . " จำนวน " . ($oldData['amount'] ?? '0'), $oldData, ['status' => 'void']);
+        
         echo json_encode(['status' => 'success']);
         exit;
     }

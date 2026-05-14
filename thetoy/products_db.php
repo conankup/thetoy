@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once '../connectDB.php';
+require_once 'audit_helper.php';
 
 header('Content-Type: application/json');
 
@@ -78,9 +79,17 @@ try {
                 ':barcode' => $barcode, ':name' => $name, ':price' => $price, ':cost' => $cost,
                 ':owner_id' => $owner_id, ':image' => $imageName, ':created_by' => $user_id
             ]);
+            
+            $new_id = $conn->lastInsertId();
+            writeAuditLog($conn, 'INSERT', 'products', $new_id, "เพิ่มสินค้าใหม่: $name (Barcode: $barcode)", null, $_POST);
             echo json_encode(['status' => 'success', 'message' => 'เพิ่มสินค้าเรียบร้อยแล้ว']);
 
         } else {
+            // ดึงข้อมูลเก่าเพื่อเทียบ
+            $stmtOld = $conn->prepare("SELECT * FROM products WHERE id = :id");
+            $stmtOld->execute([':id' => $id]);
+            $oldData = $stmtOld->fetch(PDO::FETCH_ASSOC);
+
             $imageSQL = $imageName ? ", image = :image" : "";
             $sql = "UPDATE products SET barcode = :barcode, name = :name, price = :price, cost = :cost, 
                     owner_id = :owner_id, status = :status, updated_by = :updated_by {$imageSQL} WHERE id = :id";
@@ -92,6 +101,17 @@ try {
             if ($imageName) $paramsUpdate[':image'] = $imageName;
 
             $conn->prepare($sql)->execute($paramsUpdate);
+            
+            // เปรียบเทียบข้อมูล
+            $stmtNew = $conn->prepare("SELECT * FROM products WHERE id = :id");
+            $stmtNew->execute([':id' => $id]);
+            $newData = $stmtNew->fetch(PDO::FETCH_ASSOC);
+            
+            $diff = getAuditDiff($oldData, $newData);
+            if (!empty($diff)) {
+                writeAuditLog($conn, 'UPDATE', 'products', $id, "แก้ไขสินค้า: $name", $oldData, $newData);
+            }
+
             echo json_encode(['status' => 'success', 'message' => 'อัพเดทข้อมูลเรียบร้อยแล้ว']);
         }
 
@@ -111,11 +131,16 @@ try {
             exit;
         }
 
+        $stmtOld = $conn->prepare("SELECT * FROM products WHERE id = :id");
+        $stmtOld->execute([':id' => $id]);
+        $oldData = $stmtOld->fetch(PDO::FETCH_ASSOC);
+
         if (!empty($prod['image']) && file_exists('uploads/' . $prod['image'])) {
             unlink('uploads/' . $prod['image']);
         }
 
         $conn->prepare("DELETE FROM products WHERE id = :id")->execute([':id' => $id]);
+        writeAuditLog($conn, 'DELETE', 'products', $id, "ลบสินค้า: " . ($oldData['name'] ?? 'ID '.$id), $oldData, null);
         echo json_encode(['status' => 'success', 'message' => 'ลบสินค้าเรียบร้อยแล้ว']);
 
     } elseif ($action == 'toggle_status') {

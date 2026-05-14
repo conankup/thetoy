@@ -68,7 +68,22 @@ $current_page = basename($_SERVER['PHP_SELF']);
                         </a>
                     </li>
                 <?php endif; ?>
+                <?php if (isset($_SESSION['role_id']) && $_SESSION['role_id'] == 1): ?>
+                    <li class="nav-item <?php echo ($current_page == 'audit_logs.php') ? 'active' : ''; ?>">
+                        <a class="sidenav-item-link" href="audit_logs.php">
+                            <i class="mdi mdi-shield-search"></i>
+                            <span class="nav-text">Audit Trail (บันทึกการใช้งาน)</span>
+                        </a>
+                    </li>
+                <?php endif; ?>
 
+                <li class="nav-item mt-4">
+                    <a class="sidenav-item-link" href="../logout.php">
+                        <i class="mdi mdi-logout text-danger"></i>
+                        <span class="nav-text text-danger">ออกจากระบบ</span>
+                    </a>
+                </li>
+            </ul>
         </div>
     </div>
 </aside>
