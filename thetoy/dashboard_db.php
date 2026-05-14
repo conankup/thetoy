@@ -10,13 +10,14 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
-// ตรวจสอบสิทธิ์เบื้องต้น: เฉพาะ Admin (1) และ บัญชี (2)
-if (!in_array($_SESSION['role_id'], [1, 2])) {
+// ตรวจสอบสิทธิ์เบื้องต้น: สำหรับการจัดการเบิกเงินหรือจัดการอื่นๆ (จะเช็คแยกตาม Action)
+// แต่หน้า Dashboard ให้เข้าได้ทุกคนเพื่อดูข้อมูลเบื้องต้น
+$action = $_GET['action'] ?? $_POST['action'] ?? '';
+
+if (!in_array($_SESSION['role_id'], [1, 2, 3, 4])) {
     echo json_encode(['status' => 'error', 'message' => 'ไม่มีสิทธิ์เข้าถึง']);
     exit;
 }
-
-$action = $_GET['action'] ?? $_POST['action'] ?? '';
 
 // จำกัดเฉพาะ Admin (1) สำหรับการจัดการการเบิกเงิน
 if (in_array($action, ['save_withdrawal', 'void_withdrawal']) && $_SESSION['role_id'] != 1) {
@@ -206,6 +207,26 @@ try {
         $stmtDiff->execute([':start' => $start_date, ':end' => $end_date]);
         $diffDetails = $stmtDiff->fetchAll(PDO::FETCH_ASSOC);
 
+        // ===== 7. คัดกรองข้อมูลตามสิทธิ์ (Role-based Data Filtering) =====
+        $is_staff = in_array($_SESSION['role_id'], [3, 4]);
+        
+        if ($is_staff) {
+            // ลบข้อมูลทางการเงินที่ละเอียดอ่อนสำหรับพนักงาน
+            unset($summary['sum_expenses']);
+            unset($summary['sum_diff']);
+            
+            foreach ($ownerSales as &$os) {
+                unset($os['gp_rate']);
+                unset($os['gp_amount']);
+                unset($os['net_after_gp']);
+                unset($os['total_withdrawn']);
+                unset($os['balance_due']);
+            }
+            unset($os);
+            
+            $diffDetails = []; // ไม่ให้พนักงานเห็นรายละเอียดส่วนต่าง
+        }
+
         echo json_encode([
             'status' => 'success',
             'summary' => $summary,
@@ -214,8 +235,8 @@ try {
             'chart_data' => $chartData,
             'low_stock' => $lowStock,
             'diff_details' => $diffDetails,
+            'user_role' => $_SESSION['role_id'],
             'filter' => [
-
                 'mode' => $mode,
                 'start_date' => $start_date,
                 'end_date' => $end_date

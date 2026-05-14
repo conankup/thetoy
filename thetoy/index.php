@@ -1,8 +1,9 @@
 <?php
 require_once '../auth_check.php';
 require_once '../connectDB.php';
-// เฉพาะ Admin (1) และ บัญชี (2)
-checkRole([1, 2]);
+// ทุกสิทธิ์สามารถเข้าดู Dashboard ได้ แต่จะเห็นข้อมูลต่างกัน
+checkRole([1, 2, 3, 4]);
+$is_admin_manager = in_array($_SESSION['role_id'], [1, 2]);
 ?>
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
@@ -86,6 +87,7 @@ checkRole([1, 2]);
                                 </div>
                             </div>
                         </div>
+                        <?php if ($is_admin_manager): ?>
                         <div class="col-xl col-sm-6 mb-3">
                             <div class="card dashboard-card text-white shadow-sm" style="background: linear-gradient(135deg, #e17055, #fab1a0);">
                                 <div class="card-body">
@@ -95,6 +97,9 @@ checkRole([1, 2]);
                                 </div>
                             </div>
                         </div>
+                        <?php endif; ?>
+                        
+                        <?php if ($is_admin_manager): ?>
                         <div class="col-xl col-sm-6 mb-3">
                             <div class="card dashboard-card text-white shadow-sm" id="cardDiffWrapper" style="background: linear-gradient(135deg, #fdcb6e, #ffeaa7); cursor: pointer;" title="คลิกเพื่อดูรายละเอียด" data-toggle="modal" data-target="#diffModal">
                                 <div class="card-body">
@@ -104,6 +109,17 @@ checkRole([1, 2]);
                                 </div>
                             </div>
                         </div>
+                        <?php else: ?>
+                        <div class="col-xl col-sm-6 mb-3">
+                            <div class="card dashboard-card text-white shadow-sm" style="background: linear-gradient(135deg, #ff7675, #fab1a0);">
+                                <div class="card-body">
+                                    <h2 class="text-white" id="cardTotalQty">-</h2>
+                                    <p>จำนวนชิ้นที่ขายได้รวม</p>
+                                    <i class="mdi mdi-shopping card-icon"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <?php endif; ?>
                     </div>
 
                     <!-- ===== OWNER SALES TABLE ===== -->
@@ -124,10 +140,12 @@ checkRole([1, 2]);
                                                 <tr>
                                                     <th>เจ้าของสินค้า</th>
                                                     <th class="text-right">ยอดขาย (฿)</th>
-                                                    <th class="text-right">หัก GP (฿)</th>
-                                                    <th class="text-right">สุทธิ (฿)</th>
-                                                    <th class="text-right text-danger">เบิกแล้ว (฿)</th>
-                                                    <th class="text-right text-success">คงเหลือจ่าย (฿)</th>
+                                                    <?php if ($is_admin_manager): ?>
+                                                        <th class="text-right">หัก GP (฿)</th>
+                                                        <th class="text-right">สุทธิ (฿)</th>
+                                                        <th class="text-right text-danger">เบิกแล้ว (฿)</th>
+                                                        <th class="text-right text-success">คงเหลือจ่าย (฿)</th>
+                                                    <?php endif; ?>
                                                     <th class="text-center">จำนวนชิ้น</th>
                                                 </tr>
                                             </thead>
@@ -143,8 +161,7 @@ checkRole([1, 2]);
                         </div>
                     </div>
 
-                    <!-- ===== CHART + TOP PRODUCTS ===== -->
-                    <div class="row mb-4">
+                        <?php if ($is_admin_manager): ?>
                         <!-- Chart -->
                         <div class="col-lg-7 mb-3">
                             <div class="card shadow-sm" style="border: none; border-radius: 10px;" id="chartCard">
@@ -163,9 +180,10 @@ checkRole([1, 2]);
                                 </div>
                             </div>
                         </div>
+                        <?php endif; ?>
 
                         <!-- Top 10 Products -->
-                        <div class="col-lg-5 mb-3">
+                        <div class="<?= $is_admin_manager ? 'col-lg-5' : 'col-lg-12' ?> mb-3">
                             <div class="card shadow-sm" style="border: none; border-radius: 10px;">
                                 <div class="card-body">
                                     <div class="section-title">
@@ -318,7 +336,7 @@ checkRole([1, 2]);
                     if (typeof NProgress !== 'undefined') NProgress.done();
                     if (res.status === 'success') {
                         renderSummary(res.summary);
-                        renderOwnerSales(res.owner_sales);
+                        renderOwnerSales(res.owner_sales, res.user_role);
                         renderTopProducts(res.top_products);
                         renderChart(res.chart_data, mode);
                         renderLowStock(res.low_stock);
@@ -338,24 +356,28 @@ checkRole([1, 2]);
 
         // ===== Render Summary Cards =====
         function renderSummary(s) {
-            $('#cardExpected').text(formatNumber(s.sum_expected) + ' ฿');
-            $('#cardCash').text(formatNumber(s.sum_cash) + ' ฿');
-            $('#cardTransfer').text(formatNumber(s.sum_transfer) + ' ฿');
-            $('#cardExpenses').text(formatNumber(s.sum_expenses) + ' ฿');
+            $('#cardExpected').text(formatDecimal(s.sum_expected));
+            $('#cardCash').text(formatDecimal(s.sum_cash));
+            $('#cardTransfer').text(formatDecimal(s.sum_transfer));
+            
+            if (s.sum_expenses !== undefined) {
+                $('#cardExpenses').text(formatDecimal(s.sum_expenses));
+            }
+            if (s.sum_diff !== undefined) {
+                var diff = parseFloat(s.sum_diff);
+                var diffText = (diff > 0 ? '+' : '') + formatNumber(diff) + ' ฿';
+                $('#cardDiff').text(diffText);
 
-            var diff = parseFloat(s.sum_diff);
-            var diffText = (diff > 0 ? '+' : '') + formatNumber(diff) + ' ฿';
-            $('#cardDiff').text(diffText);
-
-            if (diff < 0) {
-                $('#cardDiffWrapper').css('background', 'linear-gradient(135deg, #d63031, #ff7675)');
-                $('#cardDiff, #cardDiffWrapper p, #cardDiffWrapper .card-icon').css('color', '#fff');
-            } else if (diff > 0) {
-                $('#cardDiffWrapper').css('background', 'linear-gradient(135deg, #00b894, #55efc4)');
-                $('#cardDiff, #cardDiffWrapper p, #cardDiffWrapper .card-icon').css('color', '#fff');
-            } else {
-                $('#cardDiffWrapper').css('background', 'linear-gradient(135deg, #fdcb6e, #ffeaa7)');
-                $('#cardDiff, #cardDiffWrapper p, #cardDiffWrapper .card-icon').css('color', '#2d3436');
+                if (diff < 0) {
+                    $('#cardDiffWrapper').css('background', 'linear-gradient(135deg, #d63031, #ff7675)');
+                    $('#cardDiff, #cardDiffWrapper p, #cardDiffWrapper .card-icon').css('color', '#fff');
+                } else if (diff > 0) {
+                    $('#cardDiffWrapper').css('background', 'linear-gradient(135deg, #00b894, #55efc4)');
+                    $('#cardDiff, #cardDiffWrapper p, #cardDiffWrapper .card-icon').css('color', '#fff');
+                } else {
+                    $('#cardDiffWrapper').css('background', 'linear-gradient(135deg, #fdcb6e, #ffeaa7)');
+                    $('#cardDiff, #cardDiffWrapper p, #cardDiffWrapper .card-icon').css('color', '#2d3436');
+                }
             }
         }
 
@@ -389,28 +411,39 @@ checkRole([1, 2]);
         }
 
         // ===== Render Owner Sales =====
-        function renderOwnerSales(owners) {
-            var body = '';
-            var totalSales = 0, totalGp = 0, totalNet = 0, totalWithdrawn = 0, totalBalance = 0, totalQty = 0;
+        function renderOwnerSales(owners, userRole) {
+            let body = '';
+            let totalSales = 0;
+            let totalGP = 0;
+            let totalNet = 0;
+            let totalWithdrawn = 0;
+            let totalBalance = 0;
+            let totalQty = 0;
+            let isAdmin = (userRole == 1 || userRole == 2);
 
             if (owners.length === 0) {
-                body = '<tr><td colspan="7" class="text-center text-muted py-4">ไม่มีข้อมูลในช่วงเวลาที่เลือก</td></tr>';
+                body = '<tr><td colspan="' + (isAdmin ? 7 : 3) + '" class="text-center text-muted py-4">ไม่มีข้อมูลในช่วงเวลาที่เลือก</td></tr>';
             } else {
                 owners.forEach(function(o) {
                     totalSales += parseFloat(o.total_sales);
-                    totalGp += parseFloat(o.gp_amount);
-                    totalNet += parseFloat(o.net_after_gp);
-                    totalWithdrawn += parseFloat(o.total_withdrawn);
-                    totalBalance += parseFloat(o.balance_due);
                     totalQty += parseInt(o.total_qty_sold);
-
+                    
                     body += '<tr>';
                     body += '<td><strong>' + escapeHtml(o.owner_name) + '</strong></td>';
                     body += '<td class="text-right">' + formatDecimal(o.total_sales) + '</td>';
-                    body += '<td class="text-right text-muted">' + formatDecimal(o.gp_amount) + ' <small>(' + parseFloat(o.gp_rate).toFixed(0) + '%)</small></td>';
-                    body += '<td class="text-right">' + formatDecimal(o.net_after_gp) + '</td>';
-                    body += '<td class="text-right text-danger">-' + formatDecimal(o.total_withdrawn) + '</td>';
-                    body += '<td class="text-right text-success font-weight-bold">' + formatDecimal(o.balance_due) + '</td>';
+                    
+                    if (isAdmin && o.gp_amount !== undefined) {
+                        totalGP += parseFloat(o.gp_amount);
+                        totalNet += parseFloat(o.net_after_gp);
+                        totalWithdrawn += parseFloat(o.total_withdrawn);
+                        totalBalance += parseFloat(o.balance_due);
+                        
+                        body += '<td class="text-right text-muted">' + formatDecimal(o.gp_amount) + ' <small>(' + parseFloat(o.gp_rate).toFixed(0) + '%)</small></td>';
+                        body += '<td class="text-right">' + formatDecimal(o.net_after_gp) + '</td>';
+                        body += '<td class="text-right text-danger">-' + formatDecimal(o.total_withdrawn) + '</td>';
+                        body += '<td class="text-right text-success font-weight-bold">' + formatDecimal(o.balance_due) + '</td>';
+                    }
+                    
                     body += '<td class="text-center">' + o.total_qty_sold + '</td>';
                     body += '</tr>';
                 });
@@ -421,10 +454,12 @@ checkRole([1, 2]);
             var foot = '<tr class="font-weight-bold bg-light">';
             foot += '<td class="text-right">รวม</td>';
             foot += '<td class="text-right">' + formatDecimal(totalSales) + '</td>';
-            foot += '<td class="text-right">' + formatDecimal(totalGp) + '</td>';
-            foot += '<td class="text-right">' + formatDecimal(totalNet) + '</td>';
-            foot += '<td class="text-right text-danger">-' + formatDecimal(totalWithdrawn) + '</td>';
-            foot += '<td class="text-right text-success">' + formatDecimal(totalBalance) + '</td>';
+            if (isAdmin) {
+                foot += '<td class="text-right">' + formatDecimal(totalGP) + '</td>';
+                foot += '<td class="text-right">' + formatDecimal(totalNet) + '</td>';
+                foot += '<td class="text-right text-danger">-' + formatDecimal(totalWithdrawn) + '</td>';
+                foot += '<td class="text-right text-success">' + formatDecimal(totalBalance) + '</td>';
+            }
             foot += '<td class="text-center">' + totalQty + '</td>';
             foot += '</tr>';
             $('#ownerTableFoot').html(foot);
