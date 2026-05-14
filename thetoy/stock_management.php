@@ -1,4 +1,4 @@
-ุน<?php
+<?php
 require_once '../auth_check.php';
 require_once '../connectDB.php';
 checkRole([1, 2, 3, 4]);
