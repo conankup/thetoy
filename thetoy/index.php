@@ -150,7 +150,7 @@ $is_admin_manager = in_array($_SESSION['role_id'], [1, 2]);
                                                 </tr>
                                             </thead>
                                             <tbody id="ownerTableBody">
-                                                <tr><td colspan="6" class="text-center text-muted py-4">กำลังโหลด...</td></tr>
+                                                <tr><td colspan="<?= $is_admin_manager ? 7 : 3 ?>" class="text-center text-muted py-4">กำลังโหลด...</td></tr>
                                             </tbody>
                                             <tfoot id="ownerTableFoot">
                                             </tfoot>
@@ -365,7 +365,7 @@ $is_admin_manager = in_array($_SESSION['role_id'], [1, 2]);
             }
             if (s.sum_diff !== undefined) {
                 var diff = parseFloat(s.sum_diff);
-                var diffText = (diff > 0 ? '+' : '') + formatNumber(diff) + ' ฿';
+                var diffText = (diff > 0 ? '+' : '') + formatDecimal(diff) + ' ฿';
                 $('#cardDiff').text(diffText);
 
                 if (diff < 0) {
@@ -458,7 +458,7 @@ $is_admin_manager = in_array($_SESSION['role_id'], [1, 2]);
                 foot += '<td class="text-right">' + formatDecimal(totalGP) + '</td>';
                 foot += '<td class="text-right">' + formatDecimal(totalNet) + '</td>';
                 foot += '<td class="text-right text-danger">-' + formatDecimal(totalWithdrawn) + '</td>';
-                foot += '<td class="text-right text-success">' + formatDecimal(totalBalance) + '</td>';
+                foot += '<td class="text-right text-success font-weight-bold">' + formatDecimal(totalBalance) + '</td>';
             }
             foot += '<td class="text-center">' + totalQty + '</td>';
             foot += '</tr>';
