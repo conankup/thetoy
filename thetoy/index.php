@@ -7,222 +7,6 @@ checkRole([1, 2]);
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
 <?php include "inc/header_script.php"; ?>
-<style>
-    .dashboard-card {
-        border: none;
-        border-radius: 12px;
-        overflow: hidden;
-        position: relative;
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-    .dashboard-card:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-    }
-    .dashboard-card .card-body {
-        padding: 1.5rem;
-    }
-    .dashboard-card .card-icon {
-        font-size: 3.5rem;
-        position: absolute;
-        right: 15px;
-        bottom: -5px;
-        opacity: 0.2;
-    }
-    .dashboard-card h2 {
-        font-size: 1.8rem;
-        font-weight: 700;
-        margin-bottom: 0.3rem;
-    }
-    .dashboard-card p {
-        font-size: 0.95rem;
-        margin-bottom: 0;
-        opacity: 0.9;
-    }
-    .filter-bar {
-        background: linear-gradient(135deg, #ffffff, #f8f9ff);
-        border-radius: 14px;
-        padding: 22px 28px;
-        box-shadow: 0 4px 15px rgba(108,92,231,0.08);
-        margin-bottom: 24px;
-        border: 1px solid #ede9ff;
-    }
-    .filter-bar .filter-label {
-        font-size: 1.05rem;
-        font-weight: 700;
-        color: #2d3436;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-    }
-    .filter-bar .filter-label i {
-        font-size: 1.3rem;
-        color: #6c5ce7;
-    }
-    .filter-bar .btn-mode {
-        border-radius: 25px;
-        padding: 10px 28px;
-        font-weight: 700;
-        font-size: 0.95rem;
-        transition: all 0.25s ease;
-        border-width: 2px;
-    }
-    .filter-bar .btn-mode:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 3px 10px rgba(108,92,231,0.2);
-    }
-    .filter-bar .btn-mode.active {
-        background: linear-gradient(135deg, #6c5ce7, #7c6cf0);
-        color: #fff;
-        border-color: #6c5ce7;
-        box-shadow: 0 4px 12px rgba(108,92,231,0.35);
-    }
-    .filter-bar .btn-apply {
-        border-radius: 25px;
-        padding: 10px 30px;
-        font-weight: 700;
-        font-size: 0.95rem;
-        box-shadow: 0 3px 10px rgba(0,123,255,0.2);
-        transition: all 0.25s;
-    }
-    .filter-bar .btn-apply:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 5px 15px rgba(0,123,255,0.3);
-    }
-    .filter-bar .select2-container {
-        min-width: 130px !important;
-    }
-    .filter-bar .select2-container .select2-selection--single {
-        height: 42px;
-        border-radius: 10px;
-        border: 2px solid #e0daf7;
-        background: #fff;
-        display: flex;
-        align-items: center;
-        padding: 0 10px;
-        transition: border-color 0.2s;
-    }
-    .filter-bar .select2-container .select2-selection--single:hover {
-        border-color: #6c5ce7;
-    }
-    .filter-bar .select2-container .select2-selection--single .select2-selection__rendered {
-        font-weight: 600;
-        font-size: 0.95rem;
-        color: #2d3436;
-        line-height: 38px;
-    }
-    .filter-bar .select2-container .select2-selection--single .select2-selection__arrow {
-        height: 40px;
-    }
-    .filter-bar #filterDate {
-        height: 42px;
-        border-radius: 10px;
-        border: 2px solid #e0daf7;
-        font-weight: 600;
-        font-size: 0.95rem;
-        padding: 0 12px;
-        transition: border-color 0.2s;
-    }
-    .filter-bar #filterDate:focus {
-        border-color: #6c5ce7;
-        box-shadow: 0 0 0 3px rgba(108,92,231,0.15);
-    }
-    .lowstock-pagination {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 6px;
-        margin-top: 12px;
-        flex-wrap: wrap;
-    }
-    .lowstock-pagination .page-btn {
-        border: none;
-        background: #f0f0f0;
-        color: #636e72;
-        width: 34px;
-        height: 34px;
-        border-radius: 8px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.2s;
-    }
-    .lowstock-pagination .page-btn:hover {
-        background: #dfe6e9;
-    }
-    .lowstock-pagination .page-btn.active {
-        background: #6c5ce7;
-        color: #fff;
-    }
-    .lowstock-pagination .page-info {
-        font-size: 0.85rem;
-        color: #636e72;
-        margin: 0 8px;
-    }
-    .section-title {
-        font-size: 1.1rem;
-        font-weight: 700;
-        color: #2d3436;
-        margin-bottom: 15px;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
-    .section-title i {
-        font-size: 1.3rem;
-    }
-    .owner-table th {
-        background: #f8f9fa;
-        font-weight: 600;
-        font-size: 0.9rem;
-        border-top: none;
-    }
-    .owner-table td {
-        vertical-align: middle;
-        font-size: 0.9rem;
-    }
-    .owner-table tfoot td {
-        font-weight: 700;
-        background: #f0f0f0;
-        font-size: 0.95rem;
-    }
-    .top-product-rank {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 28px;
-        height: 28px;
-        border-radius: 50%;
-        font-weight: 700;
-        font-size: 0.8rem;
-    }
-    .rank-gold { background: #ffeaa7; color: #d68910; }
-    .rank-silver { background: #dfe6e9; color: #636e72; }
-    .rank-bronze { background: #fab1a0; color: #d63031; }
-    .rank-normal { background: #f0f0f0; color: #636e72; }
-    .low-stock-badge {
-        display: inline-block;
-        padding: 3px 10px;
-        border-radius: 12px;
-        font-weight: 700;
-        font-size: 0.85rem;
-    }
-    .low-stock-0 { background: #ffe0e0; color: #d63031; }
-    .low-stock-low { background: #fff3e0; color: #e17055; }
-    .loading-overlay {
-        position: absolute;
-        top: 0; left: 0; right: 0; bottom: 0;
-        background: rgba(255,255,255,0.8);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 10;
-        border-radius: 10px;
-    }
-    #chartContainer {
-        min-height: 320px;
-    }
-</style>
-
 <body class="navbar-fixed sidebar-fixed" id="body">
     <script>
         if (typeof NProgress !== 'undefined') { NProgress.configure({ showSpinner: false }); NProgress.start(); }
@@ -312,10 +96,10 @@ checkRole([1, 2]);
                             </div>
                         </div>
                         <div class="col-xl col-sm-6 mb-3">
-                            <div class="card dashboard-card text-white shadow-sm" id="cardDiffWrapper" style="background: linear-gradient(135deg, #fdcb6e, #ffeaa7);">
+                            <div class="card dashboard-card text-white shadow-sm" id="cardDiffWrapper" style="background: linear-gradient(135deg, #fdcb6e, #ffeaa7); cursor: pointer;" title="คลิกเพื่อดูรายละเอียด" data-toggle="modal" data-target="#diffModal">
                                 <div class="card-body">
                                     <h2 id="cardDiff" style="color: #2d3436;">-</h2>
-                                    <p style="color: #2d3436;">ส่วนต่าง (ขาด/เกิน)</p>
+                                    <p style="color: #2d3436;">ส่วนต่าง (ขาด/เกิน) <i class="mdi mdi-information-outline"></i></p>
                                     <i class="mdi mdi-scale-balance card-icon" style="color: #2d3436;"></i>
                                 </div>
                             </div>
@@ -437,6 +221,41 @@ checkRole([1, 2]);
                         </div>
                     </div>
 
+                    <!-- Modal รายละเอียดส่วนต่าง -->
+                    <div class="modal fade" id="diffModal" tabindex="-1" role="dialog" aria-hidden="true">
+                        <div class="modal-dialog modal-xl" role="document">
+                            <div class="modal-content" style="border-radius: 15px; border: none;">
+                                <div class="modal-header bg-warning">
+                                    <h5 class="modal-title text-dark" style="font-weight: 700;"><i class="mdi mdi-scale-balance"></i> รายละเอียดส่วนต่าง (ขาด/เกิน)</h5>
+                                    <button type="button" class="close text-dark" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body p-0">
+                                    <div class="table-responsive">
+                                        <table class="table table-hover table-premium mb-0">
+                                            <thead class="bg-light">
+                                                <tr>
+                                                    <th>วันที่</th>
+                                                    <th class="text-right">ยอดที่ควรได้</th>
+                                                    <th class="text-right">รับจริง</th>
+                                                    <th class="text-right">ส่วนต่าง</th>
+                                                    <th>รายละเอียด / หมายเหตุ</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="diffModalBody">
+                                                <tr><td colspan="5" class="text-center text-muted py-4">ไม่มีรายการส่วนต่างในช่วงเวลานี้</td></tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                <div class="modal-footer bg-light p-3">
+                                    <button type="button" class="btn btn-secondary btn-pill px-4" data-dismiss="modal">ปิด</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
 
@@ -503,6 +322,9 @@ checkRole([1, 2]);
                         renderTopProducts(res.top_products);
                         renderChart(res.chart_data, mode);
                         renderLowStock(res.low_stock);
+                        if (typeof renderDiffDetails === 'function') {
+                            renderDiffDetails(res.diff_details);
+                        }
                     } else {
                         toastr.error(res.message || 'เกิดข้อผิดพลาด');
                     }
@@ -535,6 +357,35 @@ checkRole([1, 2]);
                 $('#cardDiffWrapper').css('background', 'linear-gradient(135deg, #fdcb6e, #ffeaa7)');
                 $('#cardDiff, #cardDiffWrapper p, #cardDiffWrapper .card-icon').css('color', '#2d3436');
             }
+        }
+
+        // ===== Render Diff Details =====
+        function renderDiffDetails(details) {
+            var html = '';
+            if (!details || details.length === 0) {
+                html = '<tr><td colspan="5" class="text-center text-muted py-4">ไม่มีรายการส่วนต่างในช่วงเวลานี้</td></tr>';
+            } else {
+                details.forEach(function(d) {
+                    var diff = parseFloat(d.difference_amount);
+                    var dClass = diff < 0 ? 'text-danger' : 'text-success';
+                    var dSign = diff > 0 ? '+' : '';
+                    var parts = d.reconciliation_date.split('-');
+                    var dateStr = parts[2] + '/' + parts[1] + '/' + parts[0];
+
+                    var noteStr = d.difference_note ? '<span class="text-muted"><i class="mdi mdi-comment-text-outline"></i> ' + escapeHtml(d.difference_note) + '</span>' : '';
+                    
+                    var detailsHtml = noteStr !== '' ? noteStr : '<span class="text-muted">-</span>';
+
+                    html += '<tr>';
+                    html += '<td>' + dateStr + '</td>';
+                    html += '<td class="text-right">' + formatNumber(d.total_expected_sales) + ' ฿</td>';
+                    html += '<td class="text-right">' + formatNumber(d.actual_total) + ' ฿</td>';
+                    html += '<td class="text-right font-weight-bold ' + dClass + '">' + dSign + formatNumber(diff) + ' ฿</td>';
+                    html += '<td><small>' + detailsHtml + '</small></td>';
+                    html += '</tr>';
+                });
+            }
+            $('#diffModalBody').html(html);
         }
 
         // ===== Render Owner Sales =====

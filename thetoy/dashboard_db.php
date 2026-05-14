@@ -170,6 +170,25 @@ try {
         $stmtLow->execute();
         $lowStock = $stmtLow->fetchAll(PDO::FETCH_ASSOC);
 
+        // ===== 6. รายละเอียดส่วนต่าง (เฉพาะวันที่มีส่วนต่าง) =====
+        $stmtDiff = $conn->prepare("
+            SELECT 
+                reconciliation_date, 
+                total_expected_sales, 
+                (actual_cash_amount + actual_transfer_amount) as actual_total, 
+                difference_amount,
+                difference_note,
+                total_discount_amount,
+                total_defect_amount
+            FROM daily_reconciliations 
+            WHERE status = 'completed' 
+              AND difference_amount != 0
+              AND reconciliation_date BETWEEN :start AND :end
+            ORDER BY reconciliation_date DESC
+        ");
+        $stmtDiff->execute([':start' => $start_date, ':end' => $end_date]);
+        $diffDetails = $stmtDiff->fetchAll(PDO::FETCH_ASSOC);
+
         echo json_encode([
             'status' => 'success',
             'summary' => $summary,
@@ -177,7 +196,9 @@ try {
             'top_products' => $topProducts,
             'chart_data' => $chartData,
             'low_stock' => $lowStock,
+            'diff_details' => $diffDetails,
             'filter' => [
+
                 'mode' => $mode,
                 'start_date' => $start_date,
                 'end_date' => $end_date

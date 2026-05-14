@@ -37,34 +37,38 @@ try {
 
             <div class="content-wrapper">
                 <div class="content">
-                    <div class="card card-default">
-                        <div class="card-header d-flex justify-content-between align-items-center">
-                            <h2>จัดการสินค้า และบาร์โค้ด (Products)</h2>
+                    <div class="breadcrumb-wrapper mb-4">
+                        <h1>จัดการสินค้า <small class="text-muted" style="font-size: 1rem;">(Products & Barcodes)</small></h1>
+                    </div>
+
+                    <div class="card card-default shadow-sm border-0" style="border-radius: 12px;">
+                        <div class="card-header d-flex justify-content-between align-items-center bg-white" style="border-radius: 12px 12px 0 0; padding: 20px 24px;">
+                            <h3 class="m-0 font-weight-bold"><i class="mdi mdi-package-variant-closed text-primary"></i> รายการสินค้าทั้งหมด</h3>
                             <div>
-                                <a href="print_all_barcodes.php" target="_blank" class="btn btn-outline-info mr-2">
+                                <a href="print_all_barcodes.php" target="_blank" class="btn btn-outline-info btn-pill mr-2">
                                     <i class="mdi mdi-printer"></i> ปริ้นบาร์โค้ดทั้งหมด
                                 </a>
-                                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addProductModal">
-                                    + เพิ่มสินค้าใหม่
+                                <button type="button" class="btn btn-primary btn-pill" data-toggle="modal" data-target="#addProductModal">
+                                    <i class="mdi mdi-plus-circle"></i> เพิ่มสินค้าใหม่
                                 </button>
                             </div>
                         </div>
                         <div class="card-body">
                             <!-- ปุ่มกรองตามเจ้าของสินค้า -->
-                            <div class="mb-3" id="ownerFilterBtns">
-                                <span class="mr-2 font-weight-bold" style="font-size: 14px;"><i class="mdi mdi-filter-outline"></i> กรองตามเจ้าของ:</span>
-                                <button type="button" class="btn btn-sm btn-primary owner-filter-btn active" data-owner="" style="border-radius: 20px; margin: 2px;">
+                            <div class="mb-4 p-3 bg-light" id="ownerFilterBtns" style="border-radius: 12px;">
+                                <span class="mr-3 font-weight-bold text-dark"><i class="mdi mdi-filter-outline text-primary"></i> กรองตามเจ้าของ:</span>
+                                <button type="button" class="btn btn-sm btn-primary owner-filter-btn btn-pill active" data-owner="" style="margin: 2px;">
                                     <i class="mdi mdi-view-grid"></i> ทั้งหมด
                                 </button>
                                 <?php foreach($ownersList as $ow): ?>
-                                    <button type="button" class="btn btn-sm btn-outline-primary owner-filter-btn" data-owner="<?= htmlspecialchars($ow['name']) ?>" style="border-radius: 20px; margin: 2px;">
+                                    <button type="button" class="btn btn-sm btn-outline-primary owner-filter-btn btn-pill" data-owner="<?= htmlspecialchars($ow['name']) ?>" style="margin: 2px;">
                                         <?= htmlspecialchars($ow['name']) ?>
                                     </button>
                                 <?php endforeach; ?>
                             </div>
                             <div class="table-responsive">
-                                <table id="productsTable" class="table table-hover table-product" style="width:100%">
-                                    <thead>
+                                <table id="productsTable" class="table table-hover table-premium" style="width:100%">
+                                    <thead class="bg-light">
                                         <tr>
                                             <th>รูปภาพ</th>
                                             <th>รหัสบาร์โค้ด</th>
@@ -93,7 +97,7 @@ try {
                                                     <strong><?= htmlspecialchars($p['barcode'] ?? '-') ?></strong>
                                                     <?php if(!empty($p['barcode'])): ?>
                                                         <br>
-                                                        <button class="btn btn-sm btn-outline-info print-barcode-btn mt-1" 
+                                                        <button class="btn btn-sm btn-outline-info print-barcode-btn btn-pill mt-1" 
                                                             data-barcode="<?= htmlspecialchars($p['barcode']) ?>"
                                                             data-name="<?= htmlspecialchars($p['name']) ?>"
                                                             data-price="<?= htmlspecialchars($p['price']) ?>">
@@ -119,17 +123,17 @@ try {
                                                 <td><?= htmlspecialchars($p['owner_name'] ?? 'ไม่มีเจ้าของ') ?></td>
                                                 <td>
                                                     <?php if($p['status'] == 'active'): ?>
-                                                        <button class="btn btn-sm btn-outline-success toggle-status-btn" data-id="<?= $p['id'] ?>" data-status="active" style="border-radius: 20px; min-width: 90px;">
+                                                        <button class="btn btn-sm btn-outline-success toggle-status-btn btn-pill" data-id="<?= $p['id'] ?>" data-status="active" style="min-width: 90px;">
                                                             <i class="mdi mdi-circle text-success" style="font-size: 10px;"></i> ใช้งาน
                                                         </button>
                                                     <?php else: ?>
-                                                        <button class="btn btn-sm btn-outline-secondary toggle-status-btn" data-id="<?= $p['id'] ?>" data-status="inactive" style="border-radius: 20px; min-width: 90px;">
+                                                        <button class="btn btn-sm btn-outline-secondary toggle-status-btn btn-pill" data-id="<?= $p['id'] ?>" data-status="inactive" style="min-width: 90px;">
                                                             <i class="mdi mdi-circle text-secondary" style="font-size: 10px;"></i> ไม่ใช้งาน
                                                         </button>
                                                     <?php endif; ?>
                                                 </td>
                                                 <td>
-                                                    <button class="btn btn-sm btn-outline-warning edit-btn"
+                                                    <button class="btn btn-sm btn-outline-warning edit-btn btn-pill"
                                                         data-id="<?= $p['id'] ?>"
                                                         data-barcode="<?= htmlspecialchars($p['barcode'] ?? '') ?>"
                                                         data-name="<?= htmlspecialchars($p['name']) ?>"
@@ -145,11 +149,11 @@ try {
                                                     <?php if ($_SESSION['role_id'] == 1): // เฉพาะแอดมินถึงลบได้ ?>
                                                         <?php if($p['status'] == 'active'): ?>
                                                             <!-- ปุ่มลบถูก disable ถ้าสถานะ active (ป้องกันไม่ให้มี class delete-btn) -->
-                                                            <button class="btn btn-sm btn-secondary" disabled title="ต้องเปลี่ยนเป็น ไม่ใช้งาน ก่อนถึงจะลบได้" style="opacity: 0.5; cursor: not-allowed;">
+                                                            <button class="btn btn-sm btn-secondary btn-pill" disabled title="ต้องเปลี่ยนเป็น ไม่ใช้งาน ก่อนถึงจะลบได้" style="opacity: 0.5; cursor: not-allowed;">
                                                                 <i class="mdi mdi-trash-can-outline"></i>
                                                             </button>
                                                         <?php else: ?>
-                                                            <button class="btn btn-sm btn-outline-danger delete-btn" data-id="<?= $p['id'] ?>" title="ลบ">
+                                                            <button class="btn btn-sm btn-outline-danger delete-btn btn-pill" data-id="<?= $p['id'] ?>" title="ลบ">
                                                                 <i class="mdi mdi-trash-can-outline"></i>
                                                             </button>
                                                         <?php endif; ?>

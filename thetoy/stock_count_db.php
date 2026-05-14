@@ -105,16 +105,21 @@ try {
         // แบบ A: ส่วนต่าง = (เงินสดส่งมอบ + เงินโอน) - (ยอดขายที่ควรได้ - ส่วนลดรวมเพิ่มเติม)
         $diff = ($actual_cash + $actual_transfer) - ($total_expected - $total_discount_extra);
 
+        $total_defect = floatval($_POST['total_defect'] ?? 0);
+        $difference_note = trim($_POST['difference_note'] ?? '');
+
         $stmt = $conn->prepare("
             UPDATE daily_reconciliations SET 
                 carry_forward_cash = :carry,
                 total_expected_sales = :expect,
                 total_expenses = :exp,
                 total_discount_amount = :discount,
+                total_defect_amount = :defect,
                 actual_cash_amount = :cash,
                 actual_transfer_amount = :trans,
                 next_day_carry_forward = :next_carry,
                 difference_amount = :diff,
+                difference_note = :note,
                 status = 'completed',
                 updated_by = :uid
             WHERE id = :rid
@@ -124,10 +129,12 @@ try {
             ':expect' => $total_expected,
             ':exp' => $total_expense,
             ':discount' => $total_discount_extra,
+            ':defect' => $total_defect,
             ':cash' => $actual_cash,
             ':trans' => $actual_transfer,
             ':next_carry' => $next_carry_forward,
             ':diff' => $diff,
+            ':note' => $difference_note,
             ':uid' => $user_id,
             ':rid' => $recon_id
         ]);

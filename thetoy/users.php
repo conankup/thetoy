@@ -88,17 +88,17 @@ checkRole([1]); // อนุญาต Admin
         ===================================== -->
             <div class="content-wrapper">
                 <div class="content">
-                    <div class="card card-default">
-                        <div class="card-header">
-                            <h2>รายชื่อผู้ใช้งานระบบ (Yen Cha)</h2>
-                            
-                        </div>
+                    <div class="breadcrumb-wrapper mb-4">
+                        <h1>ผู้ใช้งานระบบ <small class="text-muted" style="font-size: 1rem;">(Yen Cha Users)</small></h1>
                     </div>
-                    <div class="card card-default">
+                    <div class="card card-default shadow-sm border-0" style="border-radius: 12px;">
+                        <div class="card-header d-flex justify-content-between align-items-center bg-white" style="border-radius: 12px 12px 0 0; padding: 20px 24px;">
+                            <h3 class="m-0 font-weight-bold"><i class="mdi mdi-account-multiple text-primary"></i> รายชื่อผู้ใช้งาน</h3>
+                        </div>
                         <div class="card-body">
                             <div class="table-responsive">
-                                <table id="data-table" class="table table-hover table-product nowrap" style="width:100%">
-                                    <thead>
+                                <table id="data-table" class="table table-hover table-premium nowrap" style="width:100%">
+                                    <thead class="bg-light">
                                         <tr>
                                             <th>ลำดับ</th>
                                             <th>ชื่อ</th>
@@ -158,7 +158,7 @@ checkRole([1]); // อนุญาต Admin
                                                         <td><strong><?php echo htmlspecialchars($row['allowed_app']); ?></strong></td>
                                                         <td class="text-right">
                                                             <div class="d-flex justify-content-end align-items-center">
-                                                                <button type="button" class="btn btn-sm btn-outline-secondary mr-2 btn-trigger-reset"
+                                                                <button type="button" class="btn btn-sm btn-outline-secondary btn-pill mr-2 btn-trigger-reset"
                                                                     data-toggle="modal"
                                                                     data-target="#resetPass"
                                                                     data-id="<?php echo $row['id']; ?>"
@@ -166,7 +166,7 @@ checkRole([1]); // อนุญาต Admin
                                                                     <i class="mdi mdi-lock-reset"></i> รีเซ็ต
                                                                 </button>
 
-                                                                <button type="button" class="btn btn-sm btn-outline-info mr-2 btn-edit-role"
+                                                                <button type="button" class="btn btn-sm btn-outline-info btn-pill mr-2 btn-edit-role"
                                                                     data-toggle="modal"
                                                                     data-target="#resetRole"
                                                                     data-id="<?php echo $row['id']; ?>"
@@ -203,13 +203,13 @@ checkRole([1]); // อนุญาต Admin
                                     </div>
                                     <form id="formResetPassword">
                                         <div class="modal-body">
-                                            <p>คุณต้องการรีเซ็ตรหัสผ่านของ <strong><span id="reset_user_name"></span></strong> ใช่หรือไม่?</p>
+                                            <p>คุณต้องการรีเซ็ตรหัสผ่านของ <strong class="text-dark"><span id="reset_user_name"></span></strong> ใช่หรือไม่?</p>
                                             <p class="text-muted small">*รหัสผ่านจะกลายเป็น: 123456</p>
                                             <input type="hidden" id="reset_user_id" name="user_id">
                                         </div>
                                         <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">ยกเลิก</button>
-                                            <button type="submit" class="btn btn-danger">ยืนยันการรีเซ็ต</button>
+                                            <button type="button" class="btn btn-secondary btn-pill" data-dismiss="modal">ยกเลิก</button>
+                                            <button type="submit" class="btn btn-danger btn-pill">ยืนยันการรีเซ็ต</button>
                                         </div>
                                     </form>
                                 </div>
@@ -228,8 +228,8 @@ checkRole([1]); // อนุญาต Admin
                                         <div class="modal-body">
                                             <input type="hidden" id="target_user_id">
                                             <div class="form-group">
-                                                <label>เลือกสิทธิ์การใช้งานใหม่</label>
-                                                <select class="form-control" id="new_role_select">
+                                                <label class="font-weight-bold text-dark">เลือกสิทธิ์การใช้งานใหม่</label>
+                                                <select class="form-control form-control-lg" id="new_role_select">
                                                     <option value="1">Admin (ผู้ดูแลระบบ)</option>
                                                     <option value="2">Staff (บัญชี)</option>
                                                     <option value="3">Sale (พนักงานขาย/ผู้ใช้ทั่วไป)</option>
@@ -238,8 +238,8 @@ checkRole([1]); // อนุญาต Admin
                                             </div>
                                         </div>
                                         <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">ยกเลิก</button>
-                                            <button type="submit" class="btn btn-primary">บันทึกการเปลี่ยนแปลง</button>
+                                            <button type="button" class="btn btn-secondary btn-pill" data-dismiss="modal">ยกเลิก</button>
+                                            <button type="submit" class="btn btn-primary btn-pill">บันทึกการเปลี่ยนแปลง</button>
                                         </div>
                                     </form>
                                 </div>

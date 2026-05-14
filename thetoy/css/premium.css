@@ -1,0 +1,232 @@
+/* =========================================
+   YenCha Yen POS - Premium UI Stylesheet
+   Font: Prompt (Google Fonts)
+========================================= */
+
+body {
+    font-family: 'Prompt', 'Karla', sans-serif !important;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Prompt', 'Karla', sans-serif !important;
+    font-weight: 700;
+}
+
+/* ===== Typography & Helpers ===== */
+.font-weight-bold {
+    font-weight: 700 !important;
+}
+.opacity-8 {
+    opacity: 0.8;
+}
+
+/* ===== Section Titles ===== */
+.section-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #2d3436;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.section-title i {
+    font-size: 1.5rem;
+}
+
+.breadcrumb-wrapper h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #2d3436;
+    margin-bottom: 0;
+}
+.breadcrumb-wrapper p.text-muted {
+    font-size: 1rem;
+    margin-top: 5px;
+}
+
+/* ===== Dashboard Cards (Summary Cards) ===== */
+.dashboard-card {
+    border: none;
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    background: #ffffff;
+}
+.dashboard-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+.dashboard-card .card-body {
+    padding: 1.5rem;
+    position: relative;
+    z-index: 2;
+}
+.dashboard-card .card-icon {
+    font-size: 4rem;
+    position: absolute;
+    right: 15px;
+    bottom: -10px;
+    opacity: 0.2;
+    z-index: 1;
+}
+.dashboard-card h2 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 0.3rem;
+}
+.dashboard-card p {
+    font-size: 1.05rem;
+    margin-bottom: 0;
+    opacity: 0.9;
+}
+
+/* Gradient Presets for Dashboard Cards */
+.bg-gradient-primary { background: linear-gradient(135deg, #6c5ce7, #a29bfe) !important; color: #fff; }
+.bg-gradient-success { background: linear-gradient(135deg, #00b894, #55efc4) !important; color: #fff; }
+.bg-gradient-info { background: linear-gradient(135deg, #0984e3, #74b9ff) !important; color: #fff; }
+.bg-gradient-warning { background: linear-gradient(135deg, #fdcb6e, #ffeaa7) !important; color: #fff; }
+.bg-gradient-danger { background: linear-gradient(135deg, #e17055, #fab1a0) !important; color: #fff; }
+.bg-gradient-secondary { background: linear-gradient(135deg, #b2bec3, #dfe6e9) !important; color: #fff; }
+
+/* ===== Filter Bar ===== */
+.filter-bar {
+    background: linear-gradient(135deg, #ffffff, #f8f9ff);
+    border-radius: 14px;
+    padding: 22px 28px;
+    box-shadow: 0 4px 15px rgba(108,92,231,0.08);
+    margin-bottom: 24px;
+    border: 1px solid #ede9ff;
+}
+.filter-bar .filter-label {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #2d3436;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.filter-bar .filter-label i {
+    font-size: 1.3rem;
+    color: #6c5ce7;
+}
+
+/* ===== Form Controls & Select2 Overrides ===== */
+.filter-bar .select2-container {
+    min-width: 130px !important;
+}
+.filter-bar .select2-container .select2-selection--single,
+.premium-input {
+    height: 42px;
+    border-radius: 10px;
+    border: 2px solid #e0daf7;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    transition: border-color 0.2s;
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+.filter-bar .select2-container .select2-selection--single:hover,
+.premium-input:focus, .premium-input:hover {
+    border-color: #6c5ce7;
+    outline: none;
+}
+.filter-bar .select2-container .select2-selection--single .select2-selection__rendered {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: #2d3436;
+    line-height: 38px;
+    font-family: 'Prompt', sans-serif;
+}
+.filter-bar .select2-container .select2-selection--single .select2-selection__arrow {
+    height: 40px;
+}
+
+/* Forms inside standard cards */
+.form-control-lg {
+    font-weight: 700;
+    font-size: 1.25rem;
+}
+
+/* ===== Buttons ===== */
+.btn-pill {
+    border-radius: 25px !important;
+    padding: 10px 25px !important;
+    font-weight: 700 !important;
+    transition: all 0.2s ease;
+}
+.btn-pill:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+/* ===== Modals ===== */
+.modal-content {
+    border-radius: 15px;
+    border: none;
+    overflow: hidden;
+}
+.modal-header {
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+.modal-title {
+    font-weight: 700;
+}
+
+/* ===== Tables ===== */
+.table-premium th {
+    font-weight: 700;
+    color: #2d3436;
+    background-color: #f8f9fa;
+    border-top: none !important;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+    letter-spacing: 0.5px;
+}
+.table-premium td {
+    vertical-align: middle;
+    font-size: 1rem;
+}
+.table-premium.table-hover tbody tr:hover {
+    background-color: transparent !important; /* เอาสีพื้นหลังตอนชี้เมาส์ออก */
+    box-shadow: none !important;
+}
+.table-premium.table-hover tbody tr:hover td {
+    color: #2d3436 !important; /* บังคับให้ตัวหนังสือกลับมาเป็นสีดำ/เทาเข้ม แทนสีขาวของเทมเพลต */
+}
+
+/* ===== Pagination (Low Stock) ===== */
+.lowstock-pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+}
+.lowstock-pagination .page-btn {
+    border: none;
+    background: #f0f0f0;
+    color: #636e72;
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.lowstock-pagination .page-btn:hover {
+    background: #dfe6e9;
+}
+.lowstock-pagination .page-btn.active {
+    background: #6c5ce7;
+    color: #fff;
+}
+.lowstock-pagination .page-info {
+    font-size: 0.85rem;
+    color: #636e72;
+    margin: 0 8px;
+}

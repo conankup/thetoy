@@ -9,7 +9,7 @@
   <meta name="theme-name" content="mono" />
 
   <!-- GOOGLE FONTS -->
-  <link href="https://fonts.googleapis.com/css?family=Karla:400,700|Roboto" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Karla:wght@400;700&family=Prompt:wght@300;400;600;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
   <link href="plugins/material/css/materialdesignicons.min.css" rel="stylesheet" />
   <link href="plugins/simplebar/simplebar.css" rel="stylesheet" />
 
@@ -28,6 +28,9 @@
 
   <!-- MONO CSS -->
   <link id="main-css-href" rel="stylesheet" href="css/style.css" />
+  
+  <!-- PREMIUM UI CSS -->
+  <link rel="stylesheet" href="css/premium.css" />
 
   <!-- FAVICON -->
   <link href="images/favicon.png" rel="shortcut icon" />

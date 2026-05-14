@@ -26,17 +26,21 @@ try {
 
             <div class="content-wrapper">
                 <div class="content">
-                    <div class="card card-default">
-                        <div class="card-header d-flex justify-content-between align-items-center">
-                            <h2>จัดการเจ้าของสินค้า (Item Owners)</h2>
-                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addOwnerModal">
-                                + เพิ่มเจ้าของสินค้า
+                    <div class="breadcrumb-wrapper mb-4">
+                        <h1>จัดการเจ้าของสินค้า <small class="text-muted" style="font-size: 1rem;">(Item Owners)</small></h1>
+                    </div>
+
+                    <div class="card card-default shadow-sm border-0" style="border-radius: 12px;">
+                        <div class="card-header d-flex justify-content-between align-items-center bg-white" style="border-radius: 12px 12px 0 0; padding: 20px 24px;">
+                            <h3 class="m-0 font-weight-bold"><i class="mdi mdi-account-group text-primary"></i> รายชื่อเจ้าของสินค้า</h3>
+                            <button type="button" class="btn btn-primary btn-pill" data-toggle="modal" data-target="#addOwnerModal">
+                                <i class="mdi mdi-plus-circle"></i> เพิ่มเจ้าของสินค้า
                             </button>
                         </div>
                         <div class="card-body">
                             <div class="table-responsive">
-                                <table id="ownersTable" class="table table-hover table-product" style="width:100%">
-                                    <thead>
+                                <table id="ownersTable" class="table table-hover table-premium" style="width:100%">
+                                    <thead class="bg-light">
                                         <tr>
                                             <th>ID</th>
                                             <th>ชื่อเจ้าของสินค้า</th>
@@ -53,14 +57,16 @@ try {
                                                 <td><?= htmlspecialchars($owner['gp_rate']) ?>%</td>
                                                 <td><?= htmlspecialchars($owner['created_at']) ?></td>
                                                 <td>
-                                                    <button class="btn btn-sm btn-outline-success edit-btn"
+                                                    <button class="btn btn-sm btn-outline-success btn-pill edit-btn"
                                                         data-id="<?= $owner['id'] ?>"
                                                         data-name="<?= htmlspecialchars($owner['name']) ?>"
                                                         data-gp="<?= htmlspecialchars($owner['gp_rate']) ?>"
-                                                        data-toggle="modal" data-target="#editOwnerModal">
-                                                        แก้ไข
+                                                        data-toggle="modal" data-target="#editOwnerModal" title="แก้ไข">
+                                                        <i class="mdi mdi-square-edit-outline"></i> แก้ไข
                                                     </button>
-                                                    <button class="btn btn-sm btn-outline-danger delete-btn" data-id="<?= $owner['id'] ?>">ลบ</button>
+                                                    <button class="btn btn-sm btn-outline-danger btn-pill delete-btn" data-id="<?= $owner['id'] ?>" title="ลบ">
+                                                        <i class="mdi mdi-trash-can-outline"></i> ลบ
+                                                    </button>
                                                 </td>
                                             </tr>
                                         <?php endforeach; ?>
@@ -90,18 +96,18 @@ try {
                     <div class="modal-body">
                         <input type="hidden" name="action" value="add">
                         <div class="form-group">
-                            <label>ชื่อเจ้าของสินค้า</label>
-                            <input type="text" class="form-control" name="name" required>
+                            <label class="font-weight-bold text-dark">ชื่อเจ้าของสินค้า</label>
+                            <input type="text" class="form-control form-control-lg" name="name" required>
                         </div>
                         <div class="form-group">
-                            <label>เปอร์เซ็นต์หัก GP (%)</label>
-                            <input type="number" step="0.01" class="form-control" name="gp_rate" value="15.00" required>
+                            <label class="font-weight-bold text-dark">เปอร์เซ็นต์หัก GP (%)</label>
+                            <input type="number" step="0.01" class="form-control form-control-lg" name="gp_rate" value="15.00" required>
                             <small class="form-text text-muted">ค่าเริ่มต้นคือ 15%</small>
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">ยกเลิก</button>
-                        <button type="submit" class="btn btn-primary">บันทึก</button>
+                        <button type="button" class="btn btn-secondary btn-pill" data-dismiss="modal">ยกเลิก</button>
+                        <button type="submit" class="btn btn-primary btn-pill">บันทึก</button>
                     </div>
                 </form>
             </div>
@@ -123,17 +129,17 @@ try {
                         <input type="hidden" name="action" value="edit">
                         <input type="hidden" name="id" id="edit_id">
                         <div class="form-group">
-                            <label>ชื่อเจ้าของสินค้า</label>
-                            <input type="text" class="form-control" name="name" id="edit_name" required>
+                            <label class="font-weight-bold text-dark">ชื่อเจ้าของสินค้า</label>
+                            <input type="text" class="form-control form-control-lg" name="name" id="edit_name" required>
                         </div>
                         <div class="form-group">
-                            <label>เปอร์เซ็นต์หัก GP (%)</label>
-                            <input type="number" step="0.01" class="form-control" name="gp_rate" id="edit_gp" required>
+                            <label class="font-weight-bold text-dark">เปอร์เซ็นต์หัก GP (%)</label>
+                            <input type="number" step="0.01" class="form-control form-control-lg" name="gp_rate" id="edit_gp" required>
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">ยกเลิก</button>
-                        <button type="submit" class="btn btn-primary">บันทึกการเปลี่ยนแปลง</button>
+                        <button type="button" class="btn btn-secondary btn-pill" data-dismiss="modal">ยกเลิก</button>
+                        <button type="submit" class="btn btn-primary btn-pill">บันทึกการเปลี่ยนแปลง</button>
                     </div>
                 </form>
             </div>

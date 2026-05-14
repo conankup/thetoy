@@ -27,34 +27,38 @@ try {
 
             <div class="content-wrapper">
                 <div class="content">
-                    <div class="card card-default">
-                        <div class="card-header d-flex justify-content-between align-items-center">
-                            <h2>รับของเข้า & ย้ายของ (Stock Management)</h2>
+                    <div class="breadcrumb-wrapper mb-4">
+                        <h1>รับของเข้า & ย้ายของ <small class="text-muted" style="font-size: 1rem;">(Stock Management)</small></h1>
+                    </div>
+
+                    <div class="card card-default shadow-sm border-0" style="border-radius: 12px;">
+                        <div class="card-header d-flex justify-content-between align-items-center bg-white" style="border-radius: 12px 12px 0 0; padding: 20px 24px;">
+                            <h3 class="m-0 font-weight-bold"><i class="mdi mdi-dolly text-primary"></i> จัดการสต๊อกสินค้า</h3>
                         </div>
                         <div class="card-body">
-                            <ul class="nav nav-tabs" id="stockTab" role="tablist">
-                                <li class="nav-item">
-                                    <a class="nav-link active" id="receive-tab" data-toggle="tab" href="#receive" role="tab" aria-selected="true">
+                            <ul class="nav nav-pills mb-4" id="stockTab" role="tablist">
+                                <li class="nav-item mr-2">
+                                    <a class="nav-link active btn-pill" id="receive-tab" data-toggle="tab" href="#receive" role="tab" aria-selected="true" style="font-weight: 600;">
                                         <i class="mdi mdi-truck-delivery"></i> 1. รับของเข้าตู้ (Receive)
                                     </a>
                                 </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" id="transfer-tab" data-toggle="tab" href="#transfer" role="tab" aria-selected="false">
+                                <li class="nav-item mr-2">
+                                    <a class="nav-link btn-pill" id="transfer-tab" data-toggle="tab" href="#transfer" role="tab" aria-selected="false" style="font-weight: 600;">
                                         <i class="mdi mdi-dolly"></i> 2. เติมของหน้าร้าน (Transfer)
                                     </a>
                                 </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" id="return-tab" data-toggle="tab" href="#return_storage" role="tab" aria-selected="false">
+                                <li class="nav-item mr-2">
+                                    <a class="nav-link btn-pill" id="return-tab" data-toggle="tab" href="#return_storage" role="tab" aria-selected="false" style="font-weight: 600;">
                                         <i class="mdi mdi-keyboard-return"></i> 3. ดึงของกลับตู้ (Return)
                                     </a>
                                 </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" id="reduce-tab" data-toggle="tab" href="#reduce_storage" role="tab" aria-selected="false">
+                                <li class="nav-item mr-2">
+                                    <a class="nav-link btn-pill text-danger" id="reduce-tab" data-toggle="tab" href="#reduce_storage" role="tab" aria-selected="false" style="font-weight: 600;">
                                         <i class="mdi mdi-minus-circle-outline"></i> 4. ปรับลดยอดตู้ (Adjust)
                                     </a>
                                 </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" id="overview-tab" data-toggle="tab" href="#overview" role="tab" aria-selected="false">
+                                <li class="nav-item ml-auto">
+                                    <a class="nav-link btn-pill bg-light text-dark" id="overview-tab" data-toggle="tab" href="#overview" role="tab" aria-selected="false" style="font-weight: 600;">
                                         <i class="mdi mdi-format-list-bulleted"></i> ดูสต๊อกทั้งหมด
                                     </a>
                                 </li>
@@ -74,28 +78,28 @@ try {
                                                         <div class="form-group row">
                                                             <label class="col-sm-3 col-form-label">รหัสบาร์โค้ด</label>
                                                             <div class="col-sm-7">
-                                                                <input type="text" class="form-control barcode-input" name="barcode" id="rec_barcode" autofocus required data-infodiv="#rec_info">
+                                                                <input type="text" class="form-control form-control-lg barcode-input" name="barcode" id="rec_barcode" autofocus required data-infodiv="#rec_info" placeholder="สแกนหรือพิมพ์บาร์โค้ด...">
                                                                 <div id="rec_info" class="mt-2 text-center text-info" style="min-height: 40px;"></div>
                                                             </div>
                                                             <div class="col-sm-2">
-                                                                <button type="button" class="btn btn-outline-dark w-100 btn-scan-cam" data-target="#rec_barcode"><i class="mdi mdi-camera"></i></button>
+                                                                <button type="button" class="btn btn-dark w-100 btn-scan-cam btn-pill" data-target="#rec_barcode"><i class="mdi mdi-camera"></i> สแกน</button>
                                                             </div>
                                                         </div>
-                                                        <div class="form-group row">
-                                                            <label class="col-sm-3 col-form-label">จำนวน (ชิ้น)</label>
+                                                        <div class="form-group row align-items-center">
+                                                            <label class="col-sm-3 col-form-label font-weight-bold text-dark">จำนวน (ชิ้น)</label>
                                                             <div class="col-sm-9">
-                                                                <input type="text" class="form-control" name="qty" id="rec_qty" value="1" inputmode="numeric" pattern="[0-9]*" required min="1">
+                                                                <input type="text" class="form-control form-control-lg" name="qty" id="rec_qty" value="1" inputmode="numeric" pattern="[0-9]*" required min="1" style="font-weight: 700; color: #6c5ce7;">
                                                             </div>
                                                         </div>
-                                                        <div class="form-group row" id="cost_row" style="display:none;">
-                                                            <label class="col-sm-3 col-form-label">ต้นทุน/ชิ้น (บาท)</label>
+                                                        <div class="form-group row align-items-center" id="cost_row" style="display:none;">
+                                                            <label class="col-sm-3 col-form-label font-weight-bold text-dark">ต้นทุน/ชิ้น (บาท)</label>
                                                             <div class="col-sm-9">
-                                                                <input type="number" step="0.01" class="form-control" name="cost" id="rec_cost" placeholder="ต้นทุนล่าสุด">
-                                                                <small class="text-muted">แก้ไขได้หากรอบนี้ซื้อมาในราคาที่ต่างจากเดิม</small>
+                                                                <input type="number" step="0.01" class="form-control form-control-lg" name="cost" id="rec_cost" placeholder="ต้นทุนล่าสุด">
+                                                                <small class="text-muted mt-2 d-block"><i class="mdi mdi-information-outline"></i> แก้ไขได้หากรอบนี้ซื้อมาในราคาที่ต่างจากเดิม</small>
                                                             </div>
                                                         </div>
-                                                        <div class="text-center mt-3">
-                                                            <button type="submit" class="btn btn-primary px-5">บันทึกรับเข้าคลัง</button>
+                                                        <div class="text-center mt-5">
+                                                            <button type="submit" class="btn btn-primary btn-pill px-5 py-2" style="font-size: 1.1rem;"><i class="mdi mdi-check-circle"></i> บันทึกรับเข้าคลัง</button>
                                                         </div>
                                                     </form>
                                                 </div>
@@ -120,7 +124,7 @@ try {
                                                                 <div id="trans_info" class="mt-2 text-center text-info" style="min-height: 40px;"></div>
                                                             </div>
                                                             <div class="col-sm-2">
-                                                                <button type="button" class="btn btn-outline-dark w-100 btn-scan-cam" data-target="#trans_barcode"><i class="mdi mdi-camera"></i></button>
+                                                                <button type="button" class="btn btn-outline-dark w-100 btn-scan-cam btn-pill" data-target="#trans_barcode"><i class="mdi mdi-camera"></i></button>
                                                             </div>
                                                         </div>
                                                         <div class="form-group row">
@@ -130,7 +134,7 @@ try {
                                                             </div>
                                                         </div>
                                                         <div class="text-center mt-3">
-                                                            <button type="submit" class="btn btn-success px-5">ย้ายไปหน้าร้าน</button>
+                                                            <button type="submit" class="btn btn-success btn-pill px-5">ย้ายไปหน้าร้าน</button>
                                                         </div>
                                                     </form>
                                                 </div>
@@ -155,7 +159,7 @@ try {
                                                                 <div id="ret_info" class="mt-2 text-center text-info" style="min-height: 40px;"></div>
                                                             </div>
                                                             <div class="col-sm-2">
-                                                                <button type="button" class="btn btn-outline-dark w-100 btn-scan-cam" data-target="#ret_barcode"><i class="mdi mdi-camera"></i></button>
+                                                                <button type="button" class="btn btn-outline-dark w-100 btn-scan-cam btn-pill" data-target="#ret_barcode"><i class="mdi mdi-camera"></i></button>
                                                             </div>
                                                         </div>
                                                         <div class="form-group row">
@@ -165,7 +169,7 @@ try {
                                                             </div>
                                                         </div>
                                                         <div class="text-center mt-3">
-                                                            <button type="submit" class="btn btn-warning px-5">ดึงกลับเข้าตู้</button>
+                                                            <button type="submit" class="btn btn-warning btn-pill px-5">ดึงกลับเข้าตู้</button>
                                                         </div>
                                                     </form>
                                                 </div>
@@ -190,7 +194,7 @@ try {
                                                                 <div id="red_info" class="mt-2 text-center text-info" style="min-height: 40px;"></div>
                                                             </div>
                                                             <div class="col-sm-2">
-                                                                <button type="button" class="btn btn-outline-dark w-100 btn-scan-cam" data-target="#red_barcode"><i class="mdi mdi-camera"></i></button>
+                                                                <button type="button" class="btn btn-outline-dark w-100 btn-scan-cam btn-pill" data-target="#red_barcode"><i class="mdi mdi-camera"></i></button>
                                                             </div>
                                                         </div>
                                                         <div class="form-group row">
@@ -200,7 +204,7 @@ try {
                                                             </div>
                                                         </div>
                                                         <div class="text-center mt-3">
-                                                            <button type="submit" class="btn btn-danger px-5">หักยอดออกจากตู้</button>
+                                                            <button type="submit" class="btn btn-danger btn-pill px-5">หักยอดออกจากตู้</button>
                                                         </div>
                                                     </form>
                                                 </div>
@@ -211,9 +215,9 @@ try {
 
                                 <!-- TAB 3: OVERVIEW -->
                                 <div class="tab-pane fade" id="overview" role="tabpanel">
-                                    <div class="table-responsive">
-                                        <table id="stockTable" class="table table-hover table-product" style="width:100%">
-                                            <thead>
+                                    <div class="table-responsive mt-3">
+                                        <table id="stockTable" class="table table-hover table-premium" style="width:100%">
+                                            <thead class="bg-light">
                                                 <tr>
                                                     <th>รหัสบาร์โค้ด</th>
                                                     <th>ชื่อสินค้า</th>

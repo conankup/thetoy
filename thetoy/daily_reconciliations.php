@@ -20,12 +20,17 @@ try {
     $sum_transfer = 0;
     $sum_diff = 0;
 
+    $diffDetails = [];
     foreach ($recons as $r) {
         if ($r['status'] == 'completed') {
             $sum_expected += $r['total_expected_sales'];
             $sum_cash += $r['actual_cash_amount'];
             $sum_transfer += $r['actual_transfer_amount'];
             $sum_diff += $r['difference_amount'];
+            
+            if ($r['difference_amount'] != 0) {
+                $diffDetails[] = $r;
+            }
         }
     }
 
@@ -47,74 +52,89 @@ try {
             <div class="content-wrapper">
                 <div class="content">
                     
-                    <!-- Date Filter Form -->
-                    <div class="card card-default mb-4">
-                        <div class="card-body pb-0">
-                            <form method="GET" action="daily_reconciliations.php" class="form-inline mb-3">
-                                <div class="form-group mr-3">
-                                    <label class="mr-2">ตั้งแต่วันที่:</label>
-                                    <input type="date" class="form-control" name="start_date" value="<?= htmlspecialchars($start_date) ?>" max="<?= date('Y-m-d') ?>">
+                    <!-- ===== FILTER BAR ===== -->
+                    <div class="filter-bar">
+                        <form method="GET" action="daily_reconciliations.php">
+                            <div class="d-flex flex-wrap align-items-center justify-content-between">
+                                <div class="d-flex align-items-center flex-wrap" style="gap: 20px;">
+                                    <span class="filter-label"><i class="mdi mdi-calendar-search"></i> เลือกช่วงวันที่:</span>
+                                    
+                                    <div class="d-flex align-items-center" style="gap: 12px;">
+                                        <input type="date" class="premium-input" name="start_date" value="<?= htmlspecialchars($start_date) ?>" max="<?= date('Y-m-d') ?>">
+                                        <span class="font-weight-bold opacity-8">ถึง</span>
+                                        <input type="date" class="premium-input" name="end_date" value="<?= htmlspecialchars($end_date) ?>" max="<?= date('Y-m-d') ?>">
+                                    </div>
                                 </div>
-                                <div class="form-group mr-3">
-                                    <label class="mr-2">ถึงวันที่:</label>
-                                    <input type="date" class="form-control" name="end_date" value="<?= htmlspecialchars($end_date) ?>" max="<?= date('Y-m-d') ?>">
+                                <div class="mt-3 mt-md-0 d-flex" style="gap: 10px;">
+                                    <button type="submit" class="btn btn-primary btn-pill active">
+                                        <i class="mdi mdi-magnify"></i> กรองข้อมูล
+                                    </button>
+                                    <a href="daily_reconciliations.php" class="btn btn-outline-secondary btn-pill">
+                                        <i class="mdi mdi-refresh"></i> ล้างค่า
+                                    </a>
                                 </div>
-                                <button type="submit" class="btn btn-outline-primary"><i class="mdi mdi-filter"></i> กรองข้อมูล</button>
-                                <a href="daily_reconciliations.php" class="btn btn-outline-secondary ml-2"><i class="mdi mdi-refresh"></i> ล้างค่า</a>
-                            </form>
-                        </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="breadcrumb-wrapper mb-4">
+                        <h1>ประวัติการปิดยอด <small class="text-muted" style="font-size: 1rem;">(Daily Reconciliations)</small></h1>
+                    </div>
+
+                    <div class="section-title">
+                        <i class="mdi mdi-chart-box text-primary"></i> สรุปยอดรวมตามช่วงเวลาที่เลือก
                     </div>
 
                     <!-- Summary Dashboard Cards -->
                     <div class="row mb-4">
                         <div class="col-xl-3 col-sm-6 mb-3">
-                            <div class="card bg-primary text-white shadow-sm" style="position: relative; overflow: hidden; border: none; border-radius: 10px;">
-                                <div class="card-body py-4">
+                            <div class="card dashboard-card bg-gradient-primary shadow-sm">
+                                <div class="card-body">
                                     <h2 class="mb-1 text-white"><?= number_format($sum_expected, 2) ?> ฿</h2>
-                                    <p class="mb-0" style="font-size: 1.1rem;">ยอดขายที่ควรได้รวม</p>
-                                    <i class="mdi mdi-cart text-white-50" style="font-size: 4rem; position: absolute; right: 10px; bottom: -10px; opacity: 0.5;"></i>
+                                    <p class="mb-0">ยอดขายที่ควรได้รวม</p>
+                                    <i class="mdi mdi-cart card-icon text-white"></i>
                                 </div>
                             </div>
                         </div>
                         <div class="col-xl-3 col-sm-6 mb-3">
-                            <div class="card bg-success text-white shadow-sm" style="position: relative; overflow: hidden; border: none; border-radius: 10px;">
-                                <div class="card-body py-4">
+                            <div class="card dashboard-card bg-gradient-success shadow-sm">
+                                <div class="card-body">
                                     <h2 class="mb-1 text-white"><?= number_format($sum_cash, 2) ?> ฿</h2>
-                                    <p class="mb-0" style="font-size: 1.1rem;">เงินสดรับจริงรวม</p>
-                                    <i class="mdi mdi-cash text-white-50" style="font-size: 4rem; position: absolute; right: 10px; bottom: -10px; opacity: 0.5;"></i>
+                                    <p class="mb-0">เงินสดรับจริงรวม</p>
+                                    <i class="mdi mdi-cash card-icon text-white"></i>
                                 </div>
                             </div>
                         </div>
                         <div class="col-xl-3 col-sm-6 mb-3">
-                            <div class="card bg-info text-white shadow-sm" style="position: relative; overflow: hidden; border: none; border-radius: 10px;">
-                                <div class="card-body py-4">
+                            <div class="card dashboard-card bg-gradient-info shadow-sm">
+                                <div class="card-body">
                                     <h2 class="mb-1 text-white"><?= number_format($sum_transfer, 2) ?> ฿</h2>
-                                    <p class="mb-0" style="font-size: 1.1rem;">เงินโอนรับจริงรวม</p>
-                                    <i class="mdi mdi-bank-transfer text-white-50" style="font-size: 4rem; position: absolute; right: 10px; bottom: -10px; opacity: 0.5;"></i>
+                                    <p class="mb-0">เงินโอนรับจริงรวม</p>
+                                    <i class="mdi mdi-bank-transfer card-icon text-white"></i>
                                 </div>
                             </div>
                         </div>
                         <div class="col-xl-3 col-sm-6 mb-3">
-                            <div class="card <?= $sum_diff < 0 ? 'bg-danger' : 'bg-warning' ?> text-white shadow-sm" style="position: relative; overflow: hidden; border: none; border-radius: 10px;">
-                                <div class="card-body py-4">
+                            <div class="card dashboard-card <?= $sum_diff < 0 ? 'bg-gradient-danger' : ($sum_diff > 0 ? 'bg-gradient-success' : 'bg-gradient-warning') ?> shadow-sm" style="cursor: pointer;" title="คลิกเพื่อดูรายละเอียด" data-toggle="modal" data-target="#diffModal">
+                                <div class="card-body">
                                     <h2 class="mb-1 text-white"><?= $sum_diff > 0 ? '+' : '' ?><?= number_format($sum_diff, 2) ?> ฿</h2>
-                                    <p class="mb-0" style="font-size: 1.1rem;">ส่วนต่างรวม (ขาด/เกิน)</p>
-                                    <i class="mdi mdi-scale-balance text-white-50" style="font-size: 4rem; position: absolute; right: 10px; bottom: -10px; opacity: 0.5;"></i>
+                                    <p class="mb-0 text-white">ส่วนต่างรวม <i class="mdi mdi-information-outline"></i></p>
+                                    <i class="mdi mdi-scale-balance card-icon text-white"></i>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="card card-default">
-                        <div class="card-header d-flex justify-content-between align-items-center">
-                            <h2>ประวัติการปิดยอด (Daily Reconciliations)</h2>
-                            <button type="button" class="btn btn-primary" id="btnCreateToday">
-                                + สร้างรายการปิดยอดสำหรับวันนี้
+                    <div class="card card-default shadow-sm border-0" style="border-radius: 12px;">
+                        <div class="card-header d-flex justify-content-between align-items-center bg-white" style="border-radius: 12px 12px 0 0; padding: 20px 24px;">
+                            <h3 class="m-0 font-weight-bold"><i class="mdi mdi-table-clock text-info"></i> รายการปิดยอดรายวัน</h3>
+                            <button type="button" class="btn btn-primary btn-pill" id="btnCreateToday">
+                                <i class="mdi mdi-plus-circle"></i> สร้างรายการสำหรับวันนี้
                             </button>
                         </div>
                         <div class="card-body">
                             <div class="table-responsive">
-                                <table id="reconsTable" class="table table-hover" style="width:100%">
+                                <table id="reconsTable" class="table table-hover table-premium" style="width:100%">
                                     <thead>
                                         <tr>
                                             <th>วันที่</th>
@@ -156,16 +176,16 @@ try {
                                                     <?php endif; ?>
                                                 </td>
                                                 <td>
-                                                    <a href="stock_count.php?id=<?= $r['id'] ?>" class="btn btn-sm btn-info mb-1" title="ดูรายละเอียด">
+                                                    <a href="stock_count.php?id=<?= $r['id'] ?>" class="btn btn-sm btn-info btn-pill mb-1" title="ดูรายละเอียด">
                                                         <i class="mdi mdi-eye"></i> <?= ($r['status'] == 'completed') ? 'เปิด' : 'ทำต่อ' ?>
                                                     </a>
                                                     <?php if($r['status'] == 'completed'): ?>
-                                                        <a href="print_daily_report.php?id=<?= $r['id'] ?>" target="_blank" class="btn btn-sm btn-secondary mb-1" title="พิมพ์รายงาน">
-                                                            <i class="mdi mdi-printer"></i>
+                                                        <a href="print_daily_report.php?id=<?= $r['id'] ?>" target="_blank" class="btn btn-sm btn-secondary btn-pill mb-1" title="พิมพ์รายงาน">
+                                                            <i class="mdi mdi-printer"></i> พิมพ์
                                                         </a>
                                                     <?php endif; ?>
                                                     <?php if ($_SESSION['role_id'] == 1 && $r['status'] == 'draft'): // แอดมินลบ draft ได้ ?>
-                                                        <button class="btn btn-sm btn-danger delete-btn mb-1" data-id="<?= $r['id'] ?>" title="ลบ"><i class="mdi mdi-trash-can-outline"></i></button>
+                                                        <button class="btn btn-sm btn-danger btn-pill delete-btn mb-1" data-id="<?= $r['id'] ?>" title="ลบ"><i class="mdi mdi-trash-can-outline"></i></button>
                                                     <?php endif; ?>
                                                 </td>
                                             </tr>
@@ -173,6 +193,64 @@ try {
                                     </tbody>
                                 </table>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal รายละเอียดส่วนต่าง -->
+            <div class="modal fade" id="diffModal" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="modal-dialog modal-xl" role="document">
+                    <div class="modal-content" style="border-radius: 15px; border: none;">
+                        <div class="modal-header bg-warning">
+                            <h5 class="modal-title text-dark" style="font-weight: 700;"><i class="mdi mdi-scale-balance"></i> รายละเอียดส่วนต่างช่วงเวลานี้</h5>
+                            <button type="button" class="close text-dark" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-hover table-premium mb-0">
+                                    <thead class="bg-light">
+                                        <tr>
+                                            <th>วันที่</th>
+                                            <th class="text-right">ยอดที่ควรได้</th>
+                                            <th class="text-right">รับจริง</th>
+                                            <th class="text-right">ส่วนต่าง</th>
+                                            <th>รายละเอียด / หมายเหตุ</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php if (empty($diffDetails)): ?>
+                                        <tr><td colspan="5" class="text-center text-muted py-4">ไม่มีรายการส่วนต่างในช่วงเวลานี้</td></tr>
+                                        <?php else: ?>
+                                            <?php foreach ($diffDetails as $d): 
+                                                $df = $d['difference_amount'];
+                                                $dClass = $df < 0 ? 'text-danger' : 'text-success';
+                                                $dSign = $df > 0 ? '+' : '';
+                                                $actual_total = $d['actual_cash_amount'] + $d['actual_transfer_amount'];
+                                                
+                                                if (!empty($d['difference_note'])) {
+                                                    $detailsHtml = '<span class="text-muted"><i class="mdi mdi-comment-text-outline"></i> ' . htmlspecialchars($d['difference_note']) . '</span>';
+                                                } else {
+                                                    $detailsHtml = '<span class="text-muted">-</span>';
+                                                }
+                                            ?>
+                                            <tr>
+                                                <td><?= date('d/m/Y', strtotime($d['reconciliation_date'])) ?></td>
+                                                <td class="text-right"><?= number_format($d['total_expected_sales'], 2) ?> ฿</td>
+                                                <td class="text-right"><?= number_format($actual_total, 2) ?> ฿</td>
+                                                <td class="text-right font-weight-bold <?= $dClass ?>"><?= $dSign ?><?= number_format($df, 2) ?> ฿</td>
+                                                <td><small><?= $detailsHtml ?></small></td>
+                                            </tr>
+                                            <?php endforeach; ?>
+                                        <?php endif; ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="modal-footer bg-light p-3">
+                            <button type="button" class="btn btn-secondary btn-pill px-4" data-dismiss="modal">ปิด</button>
                         </div>
                     </div>
                 </div>

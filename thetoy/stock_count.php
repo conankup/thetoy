@@ -338,6 +338,14 @@ try {
                                                             ส่วนต่าง: <strong id="diffValue">0</strong> ฿
                                                         </div>
 
+                                                        <!-- เหตุผลของส่วนต่าง -->
+                                                        <div class="form-group row" id="diffNoteSection" style="display:none;">
+                                                            <label class="col-sm-5 col-form-label text-danger"><strong><i class="mdi mdi-comment-alert-outline"></i> ระบุสาเหตุของส่วนต่าง</strong><br><small class="text-muted">(เช่น ลูกค้าให้ทิป, ทอนเงินผิด, ฯลฯ)</small></label>
+                                                            <div class="col-sm-7">
+                                                                <textarea class="form-control" id="difference_note" rows="2" placeholder="ระบุสาเหตุที่เงินขาดหรือเกิน..." <?= $is_completed ? 'readonly' : '' ?>><?= htmlspecialchars($recon['difference_note'] ?? '') ?></textarea>
+                                                            </div>
+                                                        </div>
+
                                                         <?php if (!$is_completed): ?>
                                                             <div class="text-center mt-4">
                                                                 <button type="submit" class="btn btn-success btn-lg px-5">
@@ -481,12 +489,19 @@ try {
                 if (diff < 0) {
                     $('#diffAlert').removeClass('alert-success alert-secondary alert-warning').addClass('alert-danger text-white');
                     diffEl.parent().html('เงินขาด: <strong id="diffValue">' + Math.abs(diff).toFixed(0) + '</strong> ฿');
+                    $('#diffNoteSection').show();
                 } else if (diff > 0) {
                     $('#diffAlert').removeClass('alert-danger alert-secondary alert-warning').addClass('alert-success text-white');
                     diffEl.parent().html('เงินเกิน: <strong id="diffValue">+' + diff.toFixed(0) + '</strong> ฿');
+                    $('#diffNoteSection').show();
                 } else {
                     $('#diffAlert').removeClass('alert-danger alert-success alert-warning text-white').addClass('alert-secondary text-dark');
                     diffEl.parent().html('พอดีเป๊ะ: <strong id="diffValue">0</strong> ฿');
+                    if (isCompleted && $('#difference_note').val().trim() !== '') {
+                        $('#diffNoteSection').show();
+                    } else {
+                        $('#diffNoteSection').hide();
+                    }
                 }
             }
 
@@ -755,7 +770,9 @@ try {
                                 actual_transfer: $('#actual_transfer').val(),
                                 total_expected: $('#calc_expected').val(),
                                 total_expense: $('#calc_expense').val(),
-                                total_discount_extra: $('#total_discount_extra').val()
+                                total_discount_extra: $('#total_discount_extra').val(),
+                                total_defect: $('#calc_defect').val(),
+                                difference_note: $('#difference_note').val()
                             },
                             dataType: 'json',
                             success: function(res) {
