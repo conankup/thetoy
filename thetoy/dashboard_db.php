@@ -18,7 +18,7 @@ if (!in_array($_SESSION['role_id'], [1, 2])) {
 $action = $_GET['action'] ?? $_POST['action'] ?? '';
 
 // จำกัดเฉพาะ Admin (1) สำหรับการจัดการการเบิกเงิน
-if (in_array($action, ['save_withdrawal', 'delete_withdrawal']) && $_SESSION['role_id'] != 1) {
+if (in_array($action, ['save_withdrawal', 'void_withdrawal']) && $_SESSION['role_id'] != 1) {
     echo json_encode(['status' => 'error', 'message' => 'เฉพาะผู้ดูแลระบบเท่านั้นที่สามารถจัดการการเบิกเงินได้']);
     exit;
 }
@@ -41,9 +41,9 @@ try {
         exit;
     }
 
-    if ($action == 'delete_withdrawal') {
+    if ($action == 'void_withdrawal') {
         $id = $_POST['id'];
-        $stmt = $conn->prepare("DELETE FROM owner_withdrawals WHERE id = ?");
+        $stmt = $conn->prepare("UPDATE owner_withdrawals SET status = 'void' WHERE id = ?");
         $stmt->execute([$id]);
         echo json_encode(['status' => 'success']);
         exit;
@@ -102,7 +102,8 @@ try {
         $stmtWithdraw = $conn->prepare("
             SELECT owner_id, SUM(amount) as total_withdrawn
             FROM owner_withdrawals
-            WHERE withdrawal_date BETWEEN :start AND :end
+            WHERE status = 'active'
+              AND withdrawal_date BETWEEN :start AND :end
             GROUP BY owner_id
         ");
         $stmtWithdraw->execute([':start' => $start_date, ':end' => $end_date]);
