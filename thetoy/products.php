@@ -331,15 +331,16 @@ try {
                 }
             });
 
-            // ดึงข้อมูลมาใส่ Modal Edit
-            $('.edit-btn').on('click', function() {
-                $('#edit_id').val($(this).data('id'));
-                $('#edit_barcode').val($(this).data('barcode'));
-                $('#edit_name').val($(this).data('name'));
-                $('#edit_price').val($(this).data('price'));
-                $('#edit_cost').val($(this).data('cost'));
-                $('#edit_owner_id').val($(this).data('owner'));
-                $('#edit_status').val($(this).data('status'));
+            // ดึงข้อมูลมาใส่ Modal Edit (ใช้ Event Delegation เพื่อให้ทำงานได้ทุกหน้า Pagination)
+            $('#productsTable tbody').on('click', '.edit-btn', function() {
+                var btn = $(this);
+                $('#edit_id').val(btn.data('id'));
+                $('#edit_barcode').val(btn.data('barcode'));
+                $('#edit_name').val(btn.data('name'));
+                $('#edit_price').val(btn.data('price'));
+                $('#edit_cost').val(btn.data('cost'));
+                $('#edit_owner_id').val(btn.data('owner'));
+                $('#edit_status').val(btn.data('status'));
             });
 
             // Submit Add (ใช้ FormData เพราะมีอัพโหลดไฟล์)
@@ -384,8 +385,8 @@ try {
                 });
             });
 
-            // Delete
-            $('.delete-btn').on('click', function() {
+            // Delete (ใช้ Event Delegation)
+            $('#productsTable tbody').on('click', '.delete-btn', function() {
                 var id = $(this).data('id');
                 Swal.fire({
                     title: 'ยืนยันการลบ?',
@@ -418,8 +419,8 @@ try {
                 })
             });
 
-            // เปลี่ยนสถานะ ใช้งาน / ไม่ใช้งาน
-            $('.toggle-status-btn').on('click', function() {
+            // เปลี่ยนสถานะ ใช้งาน / ไม่ใช้งาน (ใช้ Event Delegation)
+            $('#productsTable tbody').on('click', '.toggle-status-btn', function() {
                 var btn = $(this);
                 var id = btn.data('id');
                 var currentStatus = btn.data('status');
@@ -440,11 +441,12 @@ try {
                 });
             });
 
-            // ระบบปริ้นบาร์โค้ด
-            $('.print-barcode-btn').on('click', function() {
-                var barcodeValue = $(this).data('barcode');
-                var productName = $(this).data('name');
-                var productPrice = parseFloat($(this).data('price')).toFixed(2);
+            // ระบบปริ้นบาร์โค้ด (ใช้ Event Delegation)
+            $('#productsTable tbody').on('click', '.print-barcode-btn', function() {
+                var btn = $(this);
+                var barcodeValue = btn.data('barcode');
+                var productName = btn.data('name');
+                var productPrice = parseFloat(btn.data('price')).toFixed(2);
                 
                 var printWindow = window.open('', 'Print Barcode', 'height=400,width=600');
                 
@@ -492,8 +494,8 @@ try {
                 printWindow.document.close();
             });
 
-            // ดูรูปภาพขนาดใหญ่
-            $('.view-img').on('click', function() {
+            // ดูรูปภาพขนาดใหญ่ (ใช้ Event Delegation)
+            $('#productsTable tbody').on('click', '.view-img', function() {
                 var imgSrc = $(this).data('src');
                 Swal.fire({
                     imageUrl: imgSrc,

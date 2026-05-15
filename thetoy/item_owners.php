@@ -151,11 +151,12 @@ try {
 
     <script>
         $(document).ready(function() {
-            // ดึงข้อมูลมาใส่ Modal Edit
-            $('.edit-btn').on('click', function() {
-                $('#edit_id').val($(this).data('id'));
-                $('#edit_name').val($(this).data('name'));
-                $('#edit_gp').val($(this).data('gp'));
+            // ดึงข้อมูลมาใส่ Modal Edit (ใช้ Event Delegation)
+            $('#ownersTable tbody').on('click', '.edit-btn', function() {
+                var btn = $(this);
+                $('#edit_id').val(btn.data('id'));
+                $('#edit_name').val(btn.data('name'));
+                $('#edit_gp').val(btn.data('gp'));
             });
 
             // Submit Add
@@ -194,8 +195,8 @@ try {
                 });
             });
 
-            // Delete
-            $('.delete-btn').on('click', function() {
+            // Delete (ใช้ Event Delegation)
+            $('#ownersTable tbody').on('click', '.delete-btn', function() {
                 var id = $(this).data('id');
                 Swal.fire({
                     title: 'ยืนยันการลบ?',

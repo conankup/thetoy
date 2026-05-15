@@ -313,7 +313,7 @@ try {
                 });
             });
 
-            $('.delete-btn').on('click', function() {
+            $('#reconsTable tbody').on('click', '.delete-btn', function() {
                 var id = $(this).data('id');
                 Swal.fire({
                     title: 'ยืนยันการลบ?',
