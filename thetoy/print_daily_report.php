@@ -200,6 +200,13 @@ try {
             </div>
         </div>
 
+        <?php if (!empty($recon['difference_note'])): ?>
+        <div style="background-color: #fcf8e3; border: 1px solid #faebcc; border-radius: 5px; padding: 12px; margin-bottom: 20px; font-size: 14px; color: #8a6d3b;">
+            <strong><i class="mdi mdi-information-outline"></i> หมายเหตุส่วนต่าง:</strong> 
+            <?= htmlspecialchars($recon['difference_note']) ?>
+        </div>
+        <?php endif; ?>
+
         <h3 class="mb-1">รายการขายสินค้าประจำวัน</h3>
         <table>
             <thead>
