@@ -2,7 +2,7 @@
 require_once '../auth_check.php';
 require_once '../connectDB.php';
 
-checkRole([1, 2]);
+checkRole([1]);
 
 // ดึงข้อมูลสินค้าพร้อมชื่อเจ้าของ
 try {
