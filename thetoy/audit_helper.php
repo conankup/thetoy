@@ -10,7 +10,7 @@ function writeAuditLog($conn, $action, $table_name, $record_id = null, $details 
     }
 
     $user_id = $_SESSION['user_id'] ?? null;
-    $user_name = $_SESSION['username'] ?? 'System';
+    $user_name = $_SESSION['fullname'] ?? ($_SESSION['username'] ?? 'System');
     $ip_address = $_SERVER['REMOTE_ADDR'] ?? '';
     $user_agent = $_SERVER['HTTP_USER_AGENT'] ?? '';
 

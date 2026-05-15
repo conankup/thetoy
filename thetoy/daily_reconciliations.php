@@ -66,7 +66,7 @@ try {
                                     </div>
                                 </div>
                                 <div class="mt-3 mt-md-0 d-flex" style="gap: 10px;">
-                                    <button type="submit" class="btn btn-primary btn-pill active">
+                                    <button type="submit" class="btn btn-primary btn-pill shadow-sm">
                                         <i class="mdi mdi-magnify"></i> กรองข้อมูล
                                     </button>
                                     <a href="daily_reconciliations.php" class="btn btn-outline-secondary btn-pill">
@@ -128,7 +128,7 @@ try {
                     <div class="card card-default shadow-sm border-0" style="border-radius: 12px;">
                         <div class="card-header d-flex justify-content-between align-items-center bg-white" style="border-radius: 12px 12px 0 0; padding: 20px 24px;">
                             <h3 class="m-0 font-weight-bold"><i class="mdi mdi-table-clock text-info"></i> รายการปิดยอดรายวัน</h3>
-                            <button type="button" class="btn btn-primary btn-pill" id="btnCreateToday">
+                            <button type="button" class="btn btn-success btn-pill shadow-sm" id="btnCreateToday">
                                 <i class="mdi mdi-plus-circle"></i> สร้างรายการสำหรับวันนี้
                             </button>
                         </div>
@@ -176,16 +176,18 @@ try {
                                                     <?php endif; ?>
                                                 </td>
                                                 <td>
-                                                    <a href="stock_count.php?id=<?= $r['id'] ?>" class="btn btn-sm btn-info btn-pill mb-1" title="ดูรายละเอียด">
+                                                    <a href="stock_count.php?id=<?= $r['id'] ?>" class="btn btn-sm btn-outline-info btn-pill mb-1" title="ดูรายละเอียด">
                                                         <i class="mdi mdi-eye"></i> <?= ($r['status'] == 'completed') ? 'เปิด' : 'ทำต่อ' ?>
                                                     </a>
                                                     <?php if($r['status'] == 'completed'): ?>
-                                                        <a href="print_daily_report.php?id=<?= $r['id'] ?>" target="_blank" class="btn btn-sm btn-secondary btn-pill mb-1" title="พิมพ์รายงาน">
+                                                        <a href="print_daily_report.php?id=<?= $r['id'] ?>" target="_blank" class="btn btn-sm btn-outline-secondary btn-pill mb-1" title="พิมพ์รายงาน">
                                                             <i class="mdi mdi-printer"></i> พิมพ์
                                                         </a>
                                                     <?php endif; ?>
                                                     <?php if ($_SESSION['role_id'] == 1 && $r['status'] == 'draft'): // แอดมินลบ draft ได้ ?>
-                                                        <button class="btn btn-sm btn-danger btn-pill delete-btn mb-1" data-id="<?= $r['id'] ?>" title="ลบ"><i class="mdi mdi-trash-can-outline"></i></button>
+                                                        <button class="btn btn-sm btn-outline-danger btn-pill delete-btn mb-1" data-id="<?= $r['id'] ?>" title="ลบ">
+                                                            <i class="mdi mdi-trash-can-outline"></i>
+                                                        </button>
                                                     <?php endif; ?>
                                                 </td>
                                             </tr>
@@ -275,7 +277,12 @@ try {
                     icon: 'question',
                     showCancelButton: true,
                     confirmButtonText: 'ตกลง',
-                    cancelButtonText: 'ยกเลิก'
+                    cancelButtonText: 'ยกเลิก',
+                    buttonsStyling: false,
+                    customClass: {
+                        confirmButton: 'btn btn-primary btn-pill px-4 mx-2',
+                        cancelButton: 'btn btn-outline-secondary btn-pill px-4 mx-2'
+                    }
                 }).then((result) => {
                     if (result.isConfirmed) {
                         Swal.fire({
@@ -313,9 +320,13 @@ try {
                     text: "ข้อมูลการนับสต๊อกและค่าใช้จ่ายของรายการนี้จะถูกลบทั้งหมด!",
                     icon: 'warning',
                     showCancelButton: true,
-                    confirmButtonColor: '#d33',
-                    cancelButtonColor: '#3085d6',
-                    confirmButtonText: 'ใช่, ลบเลย!'
+                    confirmButtonText: 'ใช่, ลบเลย!',
+                    cancelButtonText: 'ยกเลิก',
+                    buttonsStyling: false,
+                    customClass: {
+                        confirmButton: 'btn btn-danger btn-pill px-4 mx-2',
+                        cancelButton: 'btn btn-outline-secondary btn-pill px-4 mx-2'
+                    }
                 }).then((result) => {
                     if (result.isConfirmed) {
                         $.ajax({

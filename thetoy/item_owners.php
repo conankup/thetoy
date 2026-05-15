@@ -202,9 +202,13 @@ try {
                     text: "สินค้าทั้งหมดของเจ้านี้อาจได้รับผลกระทบ!",
                     icon: 'warning',
                     showCancelButton: true,
-                    confirmButtonColor: '#d33',
-                    cancelButtonColor: '#3085d6',
-                    confirmButtonText: 'ใช่, ลบเลย!'
+                    confirmButtonText: 'ใช่, ลบเลย!',
+                    cancelButtonText: 'ยกเลิก',
+                    buttonsStyling: false,
+                    customClass: {
+                        confirmButton: 'btn btn-danger btn-pill px-4 mx-2',
+                        cancelButton: 'btn btn-outline-secondary btn-pill px-4 mx-2'
+                    }
                 }).then((result) => {
                     if (result.isConfirmed) {
                         $.ajax({

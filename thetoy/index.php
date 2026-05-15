@@ -423,7 +423,12 @@ $is_admin_manager = in_array($_SESSION['role_id'], [1, 2]);
             let isAdmin = (userRole == 1 || userRole == 2);
 
             if (owners.length === 0) {
-                body = '<tr><td colspan="' + (isAdmin ? 7 : 3) + '" class="text-center text-muted py-4">ไม่มีข้อมูลในช่วงเวลาที่เลือก</td></tr>';
+                let mode = $('.btn-mode.active').data('mode');
+                let msg = 'ไม่มีข้อมูลการปิดยอดที่สมบูรณ์ในช่วงเวลาที่เลือก';
+                if (mode === 'daily') {
+                    msg += '<br><small class="text-muted">(หากยังไม่ได้กด "ปิดยอด" ของวันนี้ ข้อมูลจะไม่แสดงในหน้านี้)</small>';
+                }
+                body = '<tr><td colspan="' + (isAdmin ? 7 : 3) + '" class="text-center text-muted py-4">' + msg + '</td></tr>';
             } else {
                 owners.forEach(function(o) {
                     totalSales += parseFloat(o.total_sales);

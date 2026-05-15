@@ -50,7 +50,13 @@ try {
             ':created_by' => $user_id
         ]);
         $new_id = $conn->lastInsertId();
-        writeAuditLog($conn, 'INSERT', 'daily_reconciliations', $new_id, "สร้างรายการปิดยอดประจำวันสำหรับวันที่ $today");
+        $newData = [
+            'reconciliation_date' => $today,
+            'carry_forward_cash' => $carry_forward,
+            'status' => 'draft',
+            'created_by' => $user_id
+        ];
+        writeAuditLog($conn, 'INSERT', 'daily_reconciliations', $new_id, "สร้างรายการปิดยอดประจำวันสำหรับวันที่ $today", null, $newData);
 
         // 2. คัดลอกสินค้าที่ Active ทั้งหมดมาไว้ใน daily_stock_counts
         // โดยให้ opening_qty = front_qty ของตาราง products ณ ปัจจุบัน

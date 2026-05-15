@@ -49,10 +49,10 @@ try {
             $average_cost = (($old_total_qty * $old_cost) + ($qty * $new_cost)) / $total_qty;
         }
 
-        $upd = $conn->prepare("UPDATE products SET storage_qty = :sqty, cost = :cost WHERE id = :id");
         $upd->execute([':sqty' => $new_storage, ':cost' => $average_cost, ':id' => $prod['id']]);
 
-        writeAuditLog($conn, 'UPDATE', 'products', $prod['id'], "รับสินค้าเข้าตู้: {$prod['name']} จำนวน $qty ชิ้น (ต้นทุนใหม่: $average_cost)");
+        $newData = ['storage_qty' => $new_storage, 'cost' => $average_cost];
+        writeAuditLog($conn, 'UPDATE', 'products', $prod['id'], "รับสินค้าเข้าตู้: {$prod['name']} จำนวน $qty ชิ้น (ต้นทุนใหม่: $average_cost)", $prod, $newData);
 
         $msg = "รับ {$prod['name']} เข้าตู้จำนวน {$qty} ชิ้น";
         if ($new_cost != $prod['cost']) {
@@ -90,10 +90,10 @@ try {
         $new_storage = $prod['storage_qty'] - $qty;
         $new_front = $prod['front_qty'] + $qty;
 
-        $upd = $conn->prepare("UPDATE products SET storage_qty = :sqty, front_qty = :fqty WHERE id = :id");
         $upd->execute([':sqty' => $new_storage, ':fqty' => $new_front, ':id' => $prod['id']]);
 
-        writeAuditLog($conn, 'UPDATE', 'products', $prod['id'], "ย้ายสินค้าไปหน้าร้าน: {$prod['name']} จำนวน $qty ชิ้น");
+        $newData = ['storage_qty' => $new_storage, 'front_qty' => $new_front];
+        writeAuditLog($conn, 'UPDATE', 'products', $prod['id'], "ย้ายสินค้าไปหน้าร้าน: {$prod['name']} จำนวน $qty ชิ้น", $prod, $newData);
 
         echo json_encode(['status' => 'success', 'message' => "ย้าย {$prod['name']} จำนวน {$qty} ชิ้น ไปหน้าร้านแล้ว"]);
 
@@ -125,10 +125,10 @@ try {
         $new_storage = $prod['storage_qty'] + $qty;
         $new_front = $prod['front_qty'] - $qty;
 
-        $upd = $conn->prepare("UPDATE products SET storage_qty = :sqty, front_qty = :fqty WHERE id = :id");
         $upd->execute([':sqty' => $new_storage, ':fqty' => $new_front, ':id' => $prod['id']]);
 
-        writeAuditLog($conn, 'UPDATE', 'products', $prod['id'], "ดึงสินค้ากลับเข้าตู้: {$prod['name']} จำนวน $qty ชิ้น");
+        $newData = ['storage_qty' => $new_storage, 'front_qty' => $new_front];
+        writeAuditLog($conn, 'UPDATE', 'products', $prod['id'], "ดึงสินค้ากลับเข้าตู้: {$prod['name']} จำนวน $qty ชิ้น", $prod, $newData);
 
         echo json_encode(['status' => 'success', 'message' => "ดึง {$prod['name']} จำนวน {$qty} ชิ้น กลับเข้าตู้แล้ว"]);
 
@@ -159,10 +159,10 @@ try {
         // ปรับลดยอดตู้ (หักออกเพราะรับเข้าผิด)
         $new_storage = $prod['storage_qty'] - $qty;
 
-        $upd = $conn->prepare("UPDATE products SET storage_qty = :sqty WHERE id = :id");
         $upd->execute([':sqty' => $new_storage, ':id' => $prod['id']]);
 
-        writeAuditLog($conn, 'UPDATE', 'products', $prod['id'], "ปรับลดยอดตู้ (หักออก): {$prod['name']} จำนวน $qty ชิ้น");
+        $newData = ['storage_qty' => $new_storage];
+        writeAuditLog($conn, 'UPDATE', 'products', $prod['id'], "ปรับลดยอดตู้ (หักออก): {$prod['name']} จำนวน $qty ชิ้น", $prod, $newData);
 
         echo json_encode(['status' => 'success', 'message' => "ปรับลดจำนวน {$prod['name']} ในตู้ลง {$qty} ชิ้นแล้ว"]);
 

@@ -64,6 +64,9 @@ $totalPages = ceil($totalLogs / $limit);
                                         </tr>
                                     </thead>
                                     <tbody>
+                                        <?php if (empty($logs)): ?>
+                                            <tr><td colspan="6" class="text-center text-muted py-5">ไม่พบข้อมูลบันทึกกิจกรรม</td></tr>
+                                        <?php endif; ?>
                                         <?php foreach ($logs as $log): ?>
                                         <tr>
                                             <td><?= date('d/m/Y H:i:s', strtotime($log['created_at'])) ?></td>

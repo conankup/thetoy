@@ -20,6 +20,7 @@
                       $page_title_display = 'นับสต๊อก & ปิดยอดรายวัน'; break;
                   case 'withdrawals.php': $page_title_display = 'เบิกเงินเจ้าของสินค้า'; break;
                   case 'user-settings.php': $page_title_display = 'ตั้งค่าบัญชีผู้ใช้'; break;
+                  case 'audit_logs.php': $page_title_display = 'บันทึกการใช้งาน (Audit Trail)'; break;
               }
               ?>
               <span class="page-title"><?= htmlspecialchars($page_title_display) ?></span>

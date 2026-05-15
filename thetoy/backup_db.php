@@ -2,6 +2,7 @@
 require_once '../auth_check.php';
 require_once '../connectDB.php';
 require_once 'plugins/MySQLDump.php';
+require_once 'audit_helper.php';
 
 use TheToy\Plugins\MySQLDump;
 
@@ -47,6 +48,7 @@ try {
         // ใช้ Pure PHP Backup
         $sql = $dumper->backup();
         if (file_put_contents($filepath, $sql)) {
+            writeAuditLog($conn, 'OTHER', 'database', null, "สำรองข้อมูลระบบ: $filename");
             echo json_encode(['status' => 'success', 'message' => 'สำรองข้อมูลสำเร็จ (Pure PHP): ' . $filename]);
         } else {
             throw new Exception("ไม่สามารถบันทึกไฟล์ได้");
@@ -62,6 +64,7 @@ try {
 
         // ใช้ Pure PHP Restore
         if ($dumper->restore($filepath)) {
+            writeAuditLog($conn, 'OTHER', 'database', null, "คืนค่าข้อมูลระบบจากไฟล์: $file", null, ['source_file' => $file]);
             echo json_encode(['status' => 'success', 'message' => 'คืนค่าข้อมูลสำเร็จ (Pure PHP)']);
         } else {
             throw new Exception("การคืนค่าล้มเหลว");
@@ -73,6 +76,7 @@ try {
         
         if (file_exists($filepath) && $file != '.' && $file != '..') {
             unlink($filepath);
+            writeAuditLog($conn, 'DELETE', 'database', null, "ลบไฟล์สำรองข้อมูล: $file");
             echo json_encode(['status' => 'success', 'message' => 'ลบไฟล์สำเร็จ']);
         } else {
             throw new Exception("ไม่สามารถลบไฟล์ได้");
@@ -83,6 +87,7 @@ try {
         $filepath = $backup_dir . $file;
         
         if (file_exists($filepath) && is_file($filepath)) {
+            writeAuditLog($conn, 'OTHER', 'database', null, "ดาวน์โหลดไฟล์สำรองข้อมูล: $file");
             header('Content-Description: File Transfer');
             header('Content-Type: application/octet-stream');
             header('Content-Disposition: attachment; filename="'.basename($filepath).'"');
@@ -109,6 +114,7 @@ try {
         }
         $conn->exec("SET FOREIGN_KEY_CHECKS = 1");
         
+        writeAuditLog($conn, 'DELETE', 'database', null, "ล้างข้อมูลระบบ (Reset Data) ทั้งหมด (ยกเว้นตารางหลัก)");
         echo json_encode(['status' => 'success', 'message' => 'ล้างข้อมูลเรียบร้อยแล้ว']);
     }
     else {

@@ -67,7 +67,7 @@ try {
                     <div class="card card-default">
                         <div class="card-header d-flex justify-content-between align-items-center">
                             <div class="d-flex align-items-center">
-                                <a href="daily_reconciliations.php" class="btn btn-secondary btn-sm mr-3"><i class="mdi mdi-arrow-left"></i> ย้อนกลับ</a>
+                                <a href="daily_reconciliations.php" class="btn btn-outline-secondary btn-sm btn-pill mr-3"><i class="mdi mdi-arrow-left"></i> ย้อนกลับ</a>
                                 <h2 class="mb-0">รายละเอียดการปิดยอดวันที่: <?= date('d/m/Y', strtotime($recon['reconciliation_date'])) ?></h2>
                             </div>
                             <?php if ($is_completed): ?>
@@ -103,20 +103,20 @@ try {
                                     <?php if (!$is_completed): ?>
                                         <div class="row mb-4">
                                             <div class="col-md-6">
-                                                <button type="button" class="btn btn-primary btn-block" id="btnScanCamera">
+                                                 <button type="button" class="btn btn-primary btn-pill btn-block shadow-sm" id="btnScanCamera">
                                                     <i class="mdi mdi-camera"></i> เปิดกล้องสแกนเพื่อนับสต๊อก
                                                 </button>
                                             </div>
                                             <div class="col-md-6">
                                                 <form id="formManualBarcode" class="d-flex">
                                                     <input type="text" class="form-control" id="manual_barcode" placeholder="หรือ ยิงบาร์โค้ดจากเครื่องอ่าน USB..." autofocus>
-                                                    <button type="submit" class="btn btn-secondary ml-2">ค้นหา</button>
+                                                     <button type="submit" class="btn btn-outline-secondary btn-pill ml-2">ค้นหา</button>
                                                 </form>
                                             </div>
                                         </div>
                                         <div class="row mb-3">
                                             <div class="col-12 text-right">
-                                                <button type="button" class="btn btn-outline-warning btn-sm" id="btnNoSalesToday">
+                                                 <button type="button" class="btn btn-outline-warning btn-sm btn-pill" id="btnNoSalesToday">
                                                     <i class="mdi mdi-magic-staff"></i> ไม่มีรายการขายวันนี้ (ดึงยอดยกมาเป็นยอดคงเหลือทั้งหมด)
                                                 </button>
                                             </div>
@@ -174,7 +174,7 @@ try {
                                                         <td class="text-right"><?= number_format($revenue, 0) ?></td>
                                                         <?php if (!$is_completed): ?>
                                                             <td>
-                                                                <button class="btn btn-sm btn-outline-primary edit-qty-btn"
+                                                                 <button class="btn btn-sm btn-outline-info btn-pill edit-qty-btn"
                                                                     data-id="<?= $c['id'] ?>"
                                                                     data-name="<?= htmlspecialchars($c['name']) ?>"
                                                                     data-closing="<?= $c['closing_qty'] ?>"
@@ -212,7 +212,9 @@ try {
                                                     <div class="input-group-text">฿</div>
                                                 </div>
                                             </div>
-                                            <button type="submit" class="btn btn-primary mb-2">+ เพิ่ม</button>
+                                             <button type="submit" class="btn btn-success btn-pill mb-2 shadow-sm">
+                                                <i class="mdi mdi-plus"></i> เพิ่ม
+                                            </button>
                                         </form>
                                     <?php endif; ?>
 
@@ -235,7 +237,9 @@ try {
                                                     <td class="text-right text-danger"><?= number_format($e['amount'], 0) ?></td>
                                                     <?php if (!$is_completed): ?>
                                                         <td>
-                                                            <button class="btn btn-sm btn-danger del-exp-btn" data-id="<?= $e['id'] ?>"><i class="mdi mdi-close"></i></button>
+                                                             <button class="btn btn-sm btn-outline-danger btn-pill del-exp-btn" data-id="<?= $e['id'] ?>">
+                                                                <i class="mdi mdi-close"></i>
+                                                            </button>
                                                         </td>
                                                     <?php endif; ?>
                                                 </tr>
@@ -348,7 +352,7 @@ try {
 
                                                         <?php if (!$is_completed): ?>
                                                             <div class="text-center mt-4">
-                                                                <button type="submit" class="btn btn-success btn-lg px-5">
+                                                             <button type="submit" class="btn btn-success btn-pill btn-lg px-5 shadow">
                                                                     <i class="mdi mdi-check-circle"></i> ยืนยันปิดยอดวันนี้ (Complete)
                                                                 </button>
                                                                 <p class="text-danger mt-2"><small>*เมื่อยืนยันแล้ว จะไม่สามารถแก้ไขยอดการนับสต๊อกได้อีก</small></p>
@@ -435,7 +439,7 @@ try {
                         </div>
                     </div>
                     <div class="modal-footer justify-content-center">
-                        <button type="submit" class="btn btn-primary btn-lg w-100">บันทึก</button>
+                        <button type="submit" class="btn btn-primary btn-pill btn-lg w-100 shadow-sm">บันทึกข้อมูล</button>
                     </div>
                 </form>
             </div>
@@ -569,9 +573,13 @@ try {
                     text: "ระบบจะคัดลอก 'ยอดยกมา' ไปเป็น 'ยอดนับได้' สำหรับสินค้าทุกตัวให้อัตโนมัติ (ยอดขาย = 0)",
                     icon: 'warning',
                     showCancelButton: true,
-                    confirmButtonColor: '#ffc107',
-                    cancelButtonColor: '#3085d6',
-                    confirmButtonText: 'ใช่, ดึงยอดเลย!'
+                    confirmButtonText: 'ใช่, ดึงยอดเลย!',
+                    cancelButtonText: 'ยกเลิก',
+                    buttonsStyling: false,
+                    customClass: {
+                        confirmButton: 'btn btn-warning btn-pill px-4 mx-2',
+                        cancelButton: 'btn btn-outline-secondary btn-pill px-4 mx-2'
+                    }
                 }).then((result) => {
                     if (result.isConfirmed) {
                         Swal.fire({
@@ -731,16 +739,32 @@ try {
 
             $('.del-exp-btn').on('click', function() {
                 var exp_id = $(this).data('id');
-                $.ajax({
-                    url: 'stock_count_db.php',
-                    type: 'POST',
-                    data: {
-                        action: 'del_expense',
-                        id: exp_id
-                    },
-                    dataType: 'json',
-                    success: function(res) {
-                        if (res.status == 'success') location.reload();
+                Swal.fire({
+                    title: 'ยืนยันการลบค่าใช้จ่าย?',
+                    text: "รายการนี้จะถูกลบออกจากบัญชีทันที",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'ใช่, ลบเลย!',
+                    cancelButtonText: 'ยกเลิก',
+                    buttonsStyling: false,
+                    customClass: {
+                        confirmButton: 'btn btn-danger btn-pill px-4 mx-2',
+                        cancelButton: 'btn btn-outline-secondary btn-pill px-4 mx-2'
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: 'stock_count_db.php',
+                            type: 'POST',
+                            data: {
+                                action: 'del_expense',
+                                id: exp_id
+                            },
+                            dataType: 'json',
+                            success: function(res) {
+                                if (res.status == 'success') location.reload();
+                            }
+                        });
                     }
                 });
             });
@@ -753,9 +777,13 @@ try {
                     text: "คุณจะไม่สามารถแก้ไขการนับสต๊อกและยอดเงินของวันนี้ได้อีก",
                     icon: 'warning',
                     showCancelButton: true,
-                    confirmButtonColor: '#28a745',
-                    cancelButtonColor: '#d33',
-                    confirmButtonText: 'ยืนยันปิดยอด!'
+                    confirmButtonText: 'ยืนยันปิดยอด!',
+                    cancelButtonText: 'ยกเลิก',
+                    buttonsStyling: false,
+                    customClass: {
+                        confirmButton: 'btn btn-success btn-pill px-4 mx-2',
+                        cancelButton: 'btn btn-outline-secondary btn-pill px-4 mx-2'
+                    }
                 }).then((result) => {
                     if (result.isConfirmed) {
                         $.ajax({
