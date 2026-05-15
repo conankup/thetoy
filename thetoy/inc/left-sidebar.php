@@ -77,6 +77,15 @@ $current_page = basename($_SERVER['PHP_SELF']);
                     </li>
                 <?php endif; ?>
 
+                <?php if (isset($_SESSION['role_id']) && $_SESSION['role_id'] == 1): ?>
+                    <li class="nav-item <?php echo ($current_page == 'backup.php') ? 'active' : ''; ?>">
+                        <a class="sidenav-item-link" href="backup.php">
+                            <i class="mdi mdi-database-export"></i>
+                            <span class="nav-text">สำรองข้อมูล & คืนค่า</span>
+                        </a>
+                    </li>
+                <?php endif; ?>
+
                 <li class="nav-item mt-4">
                     <a class="sidenav-item-link" href="../logout.php">
                         <i class="mdi mdi-logout text-danger"></i>
