@@ -31,6 +31,8 @@ try {
             ':id' => $id
         ]);
         
+        writeAuditLog($conn, 'UPDATE', 'daily_stock_counts', $id, "อัปเดตยอดนับสต๊อกสินค้า (ID: $id): ยอดนับได้=$closing, เพิ่มเติม=$added, เสียหาย=$lost, ส่วนลด=$discounted");
+        
         echo json_encode(['status' => 'success']);
         
     } elseif ($action == 'no_sales_today') {

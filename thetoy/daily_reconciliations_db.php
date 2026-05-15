@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once '../connectDB.php';
+require_once 'audit_helper.php';
 
 header('Content-Type: application/json');
 
@@ -49,6 +50,7 @@ try {
             ':created_by' => $user_id
         ]);
         $new_id = $conn->lastInsertId();
+        writeAuditLog($conn, 'INSERT', 'daily_reconciliations', $new_id, "สร้างรายการปิดยอดประจำวันสำหรับวันที่ $today");
 
         // 2. คัดลอกสินค้าที่ Active ทั้งหมดมาไว้ใน daily_stock_counts
         // โดยให้ opening_qty = front_qty ของตาราง products ณ ปัจจุบัน
@@ -94,6 +96,7 @@ try {
         // ลบ (เนื่องจาก Foreign Key เป็น CASCADE, record ใน daily_stock_counts และ daily_expenses จะถูกลบด้วย)
         $stmt = $conn->prepare("DELETE FROM daily_reconciliations WHERE id = :id");
         $stmt->execute([':id' => $id]);
+        writeAuditLog($conn, 'DELETE', 'daily_reconciliations', $id, "ยกเลิก/ลบ รายการปิดยอดประจำวัน ID: $id ของวันที่ " . ($recon['reconciliation_date'] ?? 'n/a'));
         
         echo json_encode(['status' => 'success', 'message' => 'ลบข้อมูลเรียบร้อยแล้ว']);
     } else {

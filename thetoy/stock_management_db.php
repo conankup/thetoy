@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once '../connectDB.php';
+require_once 'audit_helper.php';
 
 header('Content-Type: application/json');
 
@@ -51,8 +52,8 @@ try {
         $upd = $conn->prepare("UPDATE products SET storage_qty = :sqty, cost = :cost WHERE id = :id");
         $upd->execute([':sqty' => $new_storage, ':cost' => $average_cost, ':id' => $prod['id']]);
 
-        // (สามารถเก็บ Log ลงตาราง transactions ได้ถ้าต้องการในอนาคต)
-        
+        writeAuditLog($conn, 'UPDATE', 'products', $prod['id'], "รับสินค้าเข้าตู้: {$prod['name']} จำนวน $qty ชิ้น (ต้นทุนใหม่: $average_cost)");
+
         $msg = "รับ {$prod['name']} เข้าตู้จำนวน {$qty} ชิ้น";
         if ($new_cost != $prod['cost']) {
             $formatted_avg = number_format($average_cost, 2);
@@ -92,6 +93,8 @@ try {
         $upd = $conn->prepare("UPDATE products SET storage_qty = :sqty, front_qty = :fqty WHERE id = :id");
         $upd->execute([':sqty' => $new_storage, ':fqty' => $new_front, ':id' => $prod['id']]);
 
+        writeAuditLog($conn, 'UPDATE', 'products', $prod['id'], "ย้ายสินค้าไปหน้าร้าน: {$prod['name']} จำนวน $qty ชิ้น");
+
         echo json_encode(['status' => 'success', 'message' => "ย้าย {$prod['name']} จำนวน {$qty} ชิ้น ไปหน้าร้านแล้ว"]);
 
     } elseif ($action == 'return_storage') {
@@ -125,6 +128,8 @@ try {
         $upd = $conn->prepare("UPDATE products SET storage_qty = :sqty, front_qty = :fqty WHERE id = :id");
         $upd->execute([':sqty' => $new_storage, ':fqty' => $new_front, ':id' => $prod['id']]);
 
+        writeAuditLog($conn, 'UPDATE', 'products', $prod['id'], "ดึงสินค้ากลับเข้าตู้: {$prod['name']} จำนวน $qty ชิ้น");
+
         echo json_encode(['status' => 'success', 'message' => "ดึง {$prod['name']} จำนวน {$qty} ชิ้น กลับเข้าตู้แล้ว"]);
 
     } elseif ($action == 'reduce_storage') {
@@ -156,6 +161,8 @@ try {
 
         $upd = $conn->prepare("UPDATE products SET storage_qty = :sqty WHERE id = :id");
         $upd->execute([':sqty' => $new_storage, ':id' => $prod['id']]);
+
+        writeAuditLog($conn, 'UPDATE', 'products', $prod['id'], "ปรับลดยอดตู้ (หักออก): {$prod['name']} จำนวน $qty ชิ้น");
 
         echo json_encode(['status' => 'success', 'message' => "ปรับลดจำนวน {$prod['name']} ในตู้ลง {$qty} ชิ้นแล้ว"]);
 
