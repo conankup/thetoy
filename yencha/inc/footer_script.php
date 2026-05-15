@@ -1,0 +1,21 @@
+  <script src="plugins/jquery/jquery.min.js"></script>
+  <script src="plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="plugins/simplebar/simplebar.min.js"></script>
+  <script src="https://unpkg.com/hotkeys-js/dist/hotkeys.min.js"></script>
+  <script src="plugins/apexcharts/apexcharts.js"></script>
+  <script src="plugins/DataTables/DataTables-1.10.18/js/jquery.dataTables.min.js"></script>
+  <script src="plugins/DataTables/DataTables-1.10.18/js/dataTables.responsive.min.js"></script>
+  <script src="plugins/jvectormap/jquery-jvectormap-2.0.3.min.js"></script>
+  <script src="plugins/jvectormap/jquery-jvectormap-world-mill.js"></script>
+  <script src="plugins/jvectormap/jquery-jvectormap-us-aea.js"></script>
+  <script src="plugins/daterangepicker/moment.min.js"></script>
+  <!-- <script src="plugins/daterangepicker/daterangepicker.js"></script> -->
+  <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+  <script src="plugins/toaster/toastr.min.js"></script>
+  <script src="js/mono.js"></script>
+  <script src="js/chart.js"></script>
+  <script src="js/map.js"></script>
+  <script src="js/custom.js"></script>
+  <!--  -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
