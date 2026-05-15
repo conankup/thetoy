@@ -82,7 +82,7 @@ try {
                                                                 <div id="rec_info" class="mt-2 text-center text-info" style="min-height: 40px;"></div>
                                                             </div>
                                                             <div class="col-sm-2">
-                                                                <button type="button" class="btn btn-dark w-100 btn-scan-cam btn-pill" data-target="#rec_barcode"><i class="mdi mdi-camera"></i> สแกน</button>
+                                                                <button type="button" class="btn btn-outline-dark w-100 btn-scan-cam btn-pill" data-target="#rec_barcode"><i class="mdi mdi-camera"></i></button>
                                                             </div>
                                                         </div>
                                                         <div class="form-group row align-items-center">

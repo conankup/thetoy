@@ -71,8 +71,8 @@ $current_page = basename($_SERVER['PHP_SELF']);
                 <?php if (isset($_SESSION['role_id']) && $_SESSION['role_id'] == 1): ?>
                     <li class="nav-item <?php echo ($current_page == 'audit_logs.php') ? 'active' : ''; ?>">
                         <a class="sidenav-item-link" href="audit_logs.php">
-                            <i class="mdi mdi-shield-search"></i>
-                            <span class="nav-text">Audit Trail (บันทึกการใช้งาน)</span>
+                            <i class="mdi mdi-history"></i>
+                            <span class="nav-text">บันทึกการใช้งาน (Audit)</span>
                         </a>
                     </li>
                 <?php endif; ?>

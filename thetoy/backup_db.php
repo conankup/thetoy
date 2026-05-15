@@ -1,6 +1,9 @@
 <?php
 require_once '../auth_check.php';
 require_once '../connectDB.php';
+require_once 'plugins/MySQLDump.php';
+
+use TheToy\Plugins\MySQLDump;
 
 // เฉพาะ Admin (1) เท่านั้น
 checkRole([1]);
@@ -13,14 +16,11 @@ if (!is_dir($backup_dir)) {
     mkdir($backup_dir, 0777, true);
 }
 
-// XAMPP Paths (อาจต้องปรับเปลี่ยนตามเครื่องลูกค้า)
-$mysql_bin = 'd:\\xamppi\\mysql\\bin\\';
-$mysqldump_path = $mysql_bin . 'mysqldump.exe';
-$mysql_path = $mysql_bin . 'mysql.exe';
-
 header('Content-Type: application/json');
 
 try {
+    $dumper = new MySQLDump($conn);
+
     if ($action == 'list') {
         $files = scandir($backup_dir);
         $result = [];
@@ -36,7 +36,7 @@ try {
         }
         // เรียงตามวันที่ล่าสุด
         usort($result, function($a, $b) {
-            return filemtime($backup_dir . $b['name']) - filemtime($backup_dir . $a['name']);
+            return filemtime('backups/' . $b['name']) - filemtime('backups/' . $a['name']);
         });
         echo json_encode(['status' => 'success', 'data' => $result]);
     } 
@@ -44,16 +44,12 @@ try {
         $filename = 'backup_' . date('Y-m-d_H-i-s') . '.sql';
         $filepath = $backup_dir . $filename;
         
-        // คำสั่ง mysqldump
-        // หมายเหตุ: การใส่รหัสผ่านหลัง -p ห้ามมีเว้นวรรค
-        $command = "\"$mysqldump_path\" -h $host -u $user -p$pass $dbname > \"$filepath\" 2>&1";
-        
-        exec($command, $output, $return_var);
-        
-        if ($return_var === 0) {
-            echo json_encode(['status' => 'success', 'message' => 'สำรองข้อมูลสำเร็จ: ' . $filename]);
+        // ใช้ Pure PHP Backup
+        $sql = $dumper->backup();
+        if (file_put_contents($filepath, $sql)) {
+            echo json_encode(['status' => 'success', 'message' => 'สำรองข้อมูลสำเร็จ (Pure PHP): ' . $filename]);
         } else {
-            echo json_encode(['status' => 'error', 'message' => 'เกิดข้อผิดพลาดในการสำรองข้อมูล', 'detail' => $output]);
+            throw new Exception("ไม่สามารถบันทึกไฟล์ได้");
         }
     }
     elseif ($action == 'restore') {
@@ -64,15 +60,11 @@ try {
             throw new Exception("ไม่พบไฟล์สำรองข้อมูล");
         }
 
-        // คำสั่ง mysql เพื่อ import
-        $command = "\"$mysql_path\" -h $host -u $user -p$pass $dbname < \"$filepath\" 2>&1";
-        
-        exec($command, $output, $return_var);
-        
-        if ($return_var === 0) {
-            echo json_encode(['status' => 'success', 'message' => 'คืนค่าข้อมูลสำเร็จ']);
+        // ใช้ Pure PHP Restore
+        if ($dumper->restore($filepath)) {
+            echo json_encode(['status' => 'success', 'message' => 'คืนค่าข้อมูลสำเร็จ (Pure PHP)']);
         } else {
-            echo json_encode(['status' => 'error', 'message' => 'เกิดข้อผิดพลาดในการคืนค่าข้อมูล', 'detail' => $output]);
+            throw new Exception("การคืนค่าล้มเหลว");
         }
     }
     elseif ($action == 'delete') {
@@ -105,21 +97,19 @@ try {
         }
     }
     elseif ($action == 'reset') {
-        // ล้างข้อมูลในตารางทั้งหมด (ยกเว้นตาราง users และ roles ถ้าจำเป็น แต่ผู้ใช้บอก "เคลียร์ฐานข้อมูลเก่า")
-        // เพื่อความปลอดภัย จะดึงชื่อตารางทั้งหมดมา Truncate
         $stmt = $conn->query("SHOW TABLES");
         $tables = $stmt->fetchAll(PDO::FETCH_COLUMN);
         
         $conn->exec("SET FOREIGN_KEY_CHECKS = 0");
         foreach ($tables as $table) {
-            // ไม่ลบตารางสำคัญเพื่อให้ระบบยังทำงานได้
+            // ไม่ลบตารางสำคัญ
             if ($table != 'users' && $table != 'roles' && $table != 'audit_logs' && $table != 'locations') {
                 $conn->exec("TRUNCATE TABLE `$table` ");
             }
         }
         $conn->exec("SET FOREIGN_KEY_CHECKS = 1");
         
-        echo json_encode(['status' => 'success', 'message' => 'ล้างข้อมูล (ยกเว้นผู้ใช้งานและประวัติ) เรียบร้อยแล้ว']);
+        echo json_encode(['status' => 'success', 'message' => 'ล้างข้อมูลเรียบร้อยแล้ว']);
     }
     else {
         echo json_encode(['status' => 'error', 'message' => 'Invalid action']);
