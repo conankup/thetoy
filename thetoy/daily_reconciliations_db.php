@@ -83,12 +83,12 @@ try {
 
         $id = intval($_POST['id']);
         
-        // เช็คสถานะก่อน
-        $stmtCheck = $conn->prepare("SELECT status FROM daily_reconciliations WHERE id = :id");
+        // เช็คสถานะและดึงข้อมูลเดิมเก็บไว้ก่อนลบ
+        $stmtCheck = $conn->prepare("SELECT * FROM daily_reconciliations WHERE id = :id");
         $stmtCheck->execute([':id' => $id]);
-        $recon = $stmtCheck->fetch();
+        $oldData = $stmtCheck->fetch(PDO::FETCH_ASSOC);
 
-        if ($recon && $recon['status'] == 'completed') {
+        if ($oldData && $oldData['status'] == 'completed') {
              echo json_encode(['status' => 'error', 'message' => 'ไม่สามารถลบรายการที่ปิดยอดไปแล้วได้!']);
              exit;
         }
@@ -96,7 +96,7 @@ try {
         // ลบ (เนื่องจาก Foreign Key เป็น CASCADE, record ใน daily_stock_counts และ daily_expenses จะถูกลบด้วย)
         $stmt = $conn->prepare("DELETE FROM daily_reconciliations WHERE id = :id");
         $stmt->execute([':id' => $id]);
-        writeAuditLog($conn, 'DELETE', 'daily_reconciliations', $id, "ยกเลิก/ลบ รายการปิดยอดประจำวัน ID: $id ของวันที่ " . ($recon['reconciliation_date'] ?? 'n/a'));
+        writeAuditLog($conn, 'DELETE', 'daily_reconciliations', $id, "ยกเลิก/ลบ รายการปิดยอดประจำวัน ID: $id ของวันที่ " . ($oldData['reconciliation_date'] ?? 'n/a'), $oldData, null);
         
         echo json_encode(['status' => 'success', 'message' => 'ลบข้อมูลเรียบร้อยแล้ว']);
     } else {

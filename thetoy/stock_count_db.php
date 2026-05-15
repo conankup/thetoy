@@ -21,6 +21,11 @@ try {
         $lost = intval($_POST['lost']);
         $discounted = intval($_POST['discounted'] ?? 0);
 
+        // ดึงข้อมูลเก่าก่อนอัปเดต
+        $stmtOld = $conn->prepare("SELECT * FROM daily_stock_counts WHERE id = :id");
+        $stmtOld->execute([':id' => $id]);
+        $oldData = $stmtOld->fetch(PDO::FETCH_ASSOC);
+
         $stmt = $conn->prepare("UPDATE daily_stock_counts SET closing_qty = :closing, added_qty = :added, lost_damaged_qty = :lost, discounted_qty = :discounted, updated_by = :uid WHERE id = :id");
         $stmt->execute([
             ':closing' => $closing,
@@ -31,7 +36,15 @@ try {
             ':id' => $id
         ]);
         
-        writeAuditLog($conn, 'UPDATE', 'daily_stock_counts', $id, "อัปเดตยอดนับสต๊อกสินค้า (ID: $id): ยอดนับได้=$closing, เพิ่มเติม=$added, เสียหาย=$lost, ส่วนลด=$discounted");
+        // ดึงข้อมูลใหม่หลังอัปเดต
+        $stmtNew = $conn->prepare("SELECT * FROM daily_stock_counts WHERE id = :id");
+        $stmtNew->execute([':id' => $id]);
+        $newData = $stmtNew->fetch(PDO::FETCH_ASSOC);
+
+        $diff = getAuditDiff($oldData, $newData);
+        if (!empty($diff)) {
+            writeAuditLog($conn, 'UPDATE', 'daily_stock_counts', $id, "อัปเดตยอดนับสต๊อกสินค้า (ID: $id)", $oldData, $newData);
+        }
         
         echo json_encode(['status' => 'success']);
         
