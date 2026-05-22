@@ -20,7 +20,7 @@ try {
     $conn->beginTransaction();
 
     // 1. ดึงข้อมูลกะปัจจุบัน
-    $stmt_shift = $conn->prepare("SELECT start_counter FROM yencha_shifts WHERE id = ? AND user_id = ? FOR UPDATE");
+    $stmt_shift = $conn->prepare("SELECT start_counter, start_time FROM yencha_shifts WHERE id = ? AND user_id = ? FOR UPDATE");
     $stmt_shift->execute([$shift_id, $user_id]);
     $shift_data = $stmt_shift->fetch();
 
@@ -28,10 +28,18 @@ try {
         throw new Exception("ไม่พบข้อมูลกะที่ระบุ");
     }
 
+    $start_time = $shift_data['start_time'];
+
     // 2. คำนวณยอดขายแก้ว (Sealed Cups)
     $total_cups = $end_counter - $shift_data['start_counter'];
     $avg_price = 25; // ราคาเฉลี่ยมาตรฐาน
     $machine_revenue = $total_cups * $avg_price;
+
+    // เตรียม SQL บันทึก Snapshot ออดิต
+    $sql_audit_ins = "INSERT INTO yencha_inventory_audits 
+        (shift_id, ingredient_id, opening_qty, added_qty, closing_qty, sold_qty, unit_price) 
+        VALUES (?, ?, ?, ?, ?, ?, ?)";
+    $stmt_audit = $conn->prepare($sql_audit_ins);
 
     // 3. ประมวลผลยอดขายน้ำขวด และอัปเดตสต็อกหน้าร้าน
     $bottled_revenue = 0;
@@ -41,10 +49,33 @@ try {
         $ing = $stmt_ing->fetch();
         
         if ($ing) {
-            $sold_qty = $ing['front_qty'] - $remain_qty;
+            $front_qty_before = floatval($ing['front_qty']);
+            
+            // หาจำนวนที่เบิกเข้ามาหน้าร้านระหว่างกะนี้
+            $stmt_trans = $conn->prepare("SELECT SUM(qty_base) FROM yencha_stock_transfers WHERE ingredient_id = ? AND created_at >= ?");
+            $stmt_trans->execute([$ing_id, $start_time]);
+            $added_qty = floatval($stmt_trans->fetchColumn() ?: 0);
+            
+            // คำนวณสต็อกต้นกะ
+            $opening_qty = max(0.0, $front_qty_before - $added_qty);
+            $closing_qty = floatval($remain_qty);
+            $sold_qty = ($opening_qty + $added_qty) - $closing_qty;
+            
             if ($sold_qty > 0) {
                 $bottled_revenue += ($sold_qty * $ing['sell_price']);
             }
+            
+            // บันทึกเข้าตาราง ออดิตสต็อกรายกะ
+            $stmt_audit->execute([
+                $shift_id,
+                $ing_id,
+                $opening_qty,
+                $added_qty,
+                $closing_qty,
+                $sold_qty,
+                floatval($ing['sell_price'])
+            ]);
+
             // อัปเดตสต็อกหน้าร้านเป็นยอดที่นับได้จริง
             $conn->prepare("UPDATE yencha_ingredients SET front_qty = ? WHERE id = ?")->execute([$remain_qty, $ing_id]);
         }
@@ -52,14 +83,40 @@ try {
 
     // 4. บันทึกการประมาณการวัตถุดิบ (Estimation)
     foreach ($estimates as $ing_id => $level) {
-        // level คือ 1.0, 0.75 ฯลฯ 
-        // เราจะเก็บยอดประมาณการไว้ใน front_qty (เป็นหน่วยฐานคูณด้วย level)
-        $stmt_ing = $conn->prepare("SELECT quantity_per_unit FROM yencha_ingredients WHERE id = ?");
+        $stmt_ing = $conn->prepare("SELECT name, front_qty, purchase_price, quantity_per_unit FROM yencha_ingredients WHERE id = ? FOR UPDATE");
         $stmt_ing->execute([$ing_id]);
         $ing = $stmt_ing->fetch();
+        
         if ($ing) {
-            $estimated_base_qty = $ing['quantity_per_unit'] * $level;
-            $conn->prepare("UPDATE yencha_ingredients SET front_qty = ? WHERE id = ?")->execute([$estimated_base_qty, $ing_id]);
+            $front_qty_before = floatval($ing['front_qty']);
+            
+            // หาจำนวนที่เบิกเข้ามาหน้าร้านระหว่างกะนี้
+            $stmt_trans = $conn->prepare("SELECT SUM(qty_base) FROM yencha_stock_transfers WHERE ingredient_id = ? AND created_at >= ?");
+            $stmt_trans->execute([$ing_id, $start_time]);
+            $added_qty = floatval($stmt_trans->fetchColumn() ?: 0);
+            
+            // คำนวณสต็อกต้นกะ
+            $opening_qty = max(0.0, $front_qty_before - $added_qty);
+            $closing_qty = floatval($ing['quantity_per_unit'] * $level);
+            $sold_qty = ($opening_qty + $added_qty) - $closing_qty;
+            
+            // คำนวณต้นทุนต่อหน่วยย่อย (base unit cost)
+            $qty_per_unit = floatval($ing['quantity_per_unit'] ?: 1);
+            $unit_cost = floatval($ing['purchase_price'] / $qty_per_unit);
+            
+            // บันทึกเข้าตาราง ออดิตสต็อกรายกะ
+            $stmt_audit->execute([
+                $shift_id,
+                $ing_id,
+                $opening_qty,
+                $added_qty,
+                $closing_qty,
+                $sold_qty,
+                $unit_cost
+            ]);
+
+            // อัปเดตสต็อกหน้าร้านเป็นยอดที่กะระดับสายตา
+            $conn->prepare("UPDATE yencha_ingredients SET front_qty = ? WHERE id = ?")->execute([$closing_qty, $ing_id]);
         }
     }
 

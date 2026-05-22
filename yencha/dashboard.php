@@ -5,21 +5,27 @@ checkRole([1, 2]); // ใส่เฉพาะ ID ที่อนุญาต
 ?>
 <?php
 try {
-  // 1. ดึงรายการที่ใกล้หมด
-  $sql_low_stock = "SELECT name, stock_qty FROM yencha_ingredients 
-                      WHERE stock_qty <= 2 AND is_active = '1' 
-                      ORDER BY stock_qty ASC LIMIT 10";
+  // 0.1 คำนวณ Statistics สำหรับ Dashboard
+  $today_sales = floatval($conn->query("SELECT SUM(total_cash + total_transfer) FROM yencha_shifts WHERE DATE(start_time) = CURRENT_DATE() AND status = 'closed'")->fetchColumn() ?: 0);
+  $today_cups = intval($conn->query("SELECT SUM(end_counter - start_counter) FROM yencha_shifts WHERE DATE(start_time) = CURRENT_DATE() AND status = 'closed'")->fetchColumn() ?: 0);
+  $today_diff = floatval($conn->query("SELECT SUM((total_cash + total_transfer) - (machine_revenue + bottled_revenue)) FROM yencha_shifts WHERE DATE(start_time) = CURRENT_DATE() AND status = 'closed'")->fetchColumn() ?: 0);
+  $monthly_sales = floatval($conn->query("SELECT SUM(total_cash + total_transfer) FROM yencha_shifts WHERE YEAR(start_time) = YEAR(CURRENT_DATE()) AND MONTH(start_time) = MONTH(CURRENT_DATE()) AND status = 'closed'")->fetchColumn() ?: 0);
+
+  // 1. ดึงรายการที่ใกล้หมด (เช็คจาก storage_qty ที่เก็บเป็นหน่วยใหญ่)
+  $sql_low_stock = "SELECT name, storage_qty, unit, min_qty FROM yencha_ingredients 
+                      WHERE storage_qty <= min_qty AND is_active = '1' 
+                      ORDER BY (storage_qty - min_qty) ASC LIMIT 10";
   $stmt_low = $conn->prepare($sql_low_stock);
   $stmt_low->execute();
   $low_stock_items = $stmt_low->fetchAll(PDO::FETCH_ASSOC);
 
-  // 2. ดึง 10 อันดับวัตถุดิบ (เช็คชื่อตารางลบเลข 1 ออก)
-  $sql_top_usage = "SELECT i.name, SUM(l.qty) as total_out 
-                      FROM yencha_stock_log l 
-                      JOIN yencha_ingredients i ON l.ingredient_id = i.id 
-                      WHERE l.type = 'out' AND l.status = 'active' 
-                      AND MONTH(l.created_at) = MONTH(CURRENT_DATE())
-                      GROUP BY l.ingredient_id, i.name
+  // 2. ดึง 10 อันดับเบิกสูงสุด (ดึงจากตารางการเบิก stock_transfers ของหน่วยใหญ่แยกกะ)
+  $sql_top_usage = "SELECT i.name, SUM(t.qty_units) as total_out 
+                      FROM yencha_stock_transfers t
+                      JOIN yencha_ingredients i ON t.ingredient_id = i.id 
+                      WHERE YEAR(t.created_at) = YEAR(CURRENT_DATE()) 
+                      AND MONTH(t.created_at) = MONTH(CURRENT_DATE())
+                      GROUP BY t.ingredient_id, i.name
                       ORDER BY total_out DESC LIMIT 10";
   $stmt_top = $conn->prepare($sql_top_usage);
   $stmt_top->execute();
@@ -63,119 +69,75 @@ try {
         <div class="content">
           <!-- Top Statistics -->
           <div class="row">
-            <div class="col-xl-3 col-sm-6">
-              <div class="card card-default card-mini">
-                <div class="card-header">
-                  <h2>$18,699</h2>
-                  <div class="dropdown">
-                    <a class="dropdown-toggle icon-burger-mini" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    </a>
-
-                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuLink">
-                      <a class="dropdown-item" href="#">Action</a>
-                      <a class="dropdown-item" href="#">Another action</a>
-                      <a class="dropdown-item" href="#">Something else here</a>
-                    </div>
+            <div class="col-xl-3 col-sm-6 mb-4">
+              <div class="card card-default card-mini shadow-sm border-0" style="border-left: 4px solid #1976d2 !important;">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                  <div>
+                    <h6 class="text-muted text-uppercase font-weight-bold mb-1">ยอดขายวันนี้</h6>
+                    <h2 class="text-dark font-weight-bold">฿<?php echo number_format($today_sales, 2); ?></h2>
                   </div>
-                  <div class="sub-title">
-                    <span class="mr-1">Sales of this year</span> |
-                    <span class="mx-1">45%</span>
-                    <i class="mdi mdi-arrow-up-bold text-success"></i>
+                  <div class="bg-primary-soft rounded-circle p-2 text-primary">
+                    <i class="mdi mdi-cash-multiple mdi-24px"></i>
                   </div>
                 </div>
-                <div class="card-body">
-                  <div class="chart-wrapper">
-                    <div>
-                      <div id="spline-area-1"></div>
-                    </div>
-                  </div>
+                <div class="card-body py-1">
+                  <span class="text-muted small">รวมเงินสด & ยอดโอนจากกะที่ปิดแล้ว</span>
                 </div>
               </div>
             </div>
-            <div class="col-xl-3 col-sm-6">
-              <div class="card card-default card-mini">
-                <div class="card-header">
-                  <h2>$14,500</h2>
-                  <div class="dropdown">
-                    <a class="dropdown-toggle icon-burger-mini" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    </a>
-
-                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuLink">
-                      <a class="dropdown-item" href="#">Action</a>
-                      <a class="dropdown-item" href="#">Another action</a>
-                      <a class="dropdown-item" href="#">Something else here</a>
-                    </div>
+            
+            <div class="col-xl-3 col-sm-6 mb-4">
+              <div class="card card-default card-mini shadow-sm border-0" style="border-left: 4px solid #2e7d32 !important;">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                  <div>
+                    <h6 class="text-muted text-uppercase font-weight-bold mb-1">จำนวนแก้ววันนี้</h6>
+                    <h2 class="text-success font-weight-bold"><?php echo number_format($today_cups); ?> แก้ว</h2>
                   </div>
-                  <div class="sub-title">
-                    <span class="mr-1">Expense of this year</span> |
-                    <span class="mx-1">50%</span>
-                    <i class="mdi mdi-arrow-down-bold text-danger"></i>
+                  <div class="bg-success-soft rounded-circle p-2 text-success">
+                    <i class="mdi mdi-cup mdi-24px"></i>
                   </div>
                 </div>
-                <div class="card-body">
-                  <div class="chart-wrapper">
-                    <div>
-                      <div id="spline-area-2"></div>
-                    </div>
-                  </div>
+                <div class="card-body py-1">
+                  <span class="text-muted small">นับตามตัวเลขเครื่องซีนปิดแก้ว</span>
                 </div>
               </div>
             </div>
-            <div class="col-xl-3 col-sm-6">
-              <div class="card card-default card-mini">
-                <div class="card-header">
-                  <h2>$4199</h2>
-                  <div class="dropdown">
-                    <a class="dropdown-toggle icon-burger-mini" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    </a>
-
-                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuLink">
-                      <a class="dropdown-item" href="#">Action</a>
-                      <a class="dropdown-item" href="#">Another action</a>
-                      <a class="dropdown-item" href="#">Something else here</a>
-                    </div>
+            
+            <div class="col-xl-3 col-sm-6 mb-4">
+              <?php 
+              $diff_color = $today_diff >= 0 ? '#1976d2' : '#c62828';
+              $diff_bg = $today_diff >= 0 ? 'bg-primary-soft text-primary' : 'bg-danger-soft text-danger';
+              $diff_class = $today_diff >= 0 ? 'text-primary' : 'text-danger';
+              ?>
+              <div class="card card-default card-mini shadow-sm border-0" style="border-left: 4px solid <?php echo $diff_color; ?> !important;">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                  <div>
+                    <h6 class="text-muted text-uppercase font-weight-bold mb-1">ส่วนต่างวันนี้</h6>
+                    <h2 class="font-weight-bold <?php echo $diff_class; ?>">฿<?php echo number_format($today_diff, 2); ?></h2>
                   </div>
-                  <div class="sub-title">
-                    <span class="mr-1">Profit of this year</span> |
-                    <span class="mx-1">20%</span>
-                    <i class="mdi mdi-arrow-down-bold text-danger"></i>
+                  <div class="rounded-circle p-2 <?php echo $diff_bg; ?>">
+                    <i class="mdi <?php echo $today_diff >= 0 ? 'mdi-trending-up' : 'mdi-trending-down'; ?> mdi-24px"></i>
                   </div>
                 </div>
-                <div class="card-body">
-                  <div class="chart-wrapper">
-                    <div>
-                      <div id="spline-area-3"></div>
-                    </div>
-                  </div>
+                <div class="card-body py-1">
+                  <span class="text-muted small">เปรียบเทียบ ยอดขายจริง vs ระบบ</span>
                 </div>
               </div>
             </div>
-            <div class="col-xl-3 col-sm-6">
-              <div class="card card-default card-mini">
-                <div class="card-header">
-                  <h2>$20,199</h2>
-                  <div class="dropdown">
-                    <a class="dropdown-toggle icon-burger-mini" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    </a>
-
-                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuLink">
-                      <a class="dropdown-item" href="#">Action</a>
-                      <a class="dropdown-item" href="#">Another action</a>
-                      <a class="dropdown-item" href="#">Something else here</a>
-                    </div>
+            
+            <div class="col-xl-3 col-sm-6 mb-4">
+              <div class="card card-default card-mini shadow-sm border-0" style="border-left: 4px solid #ef6c00 !important;">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                  <div>
+                    <h6 class="text-muted text-uppercase font-weight-bold mb-1">ยอดสะสมเดือนนี้</h6>
+                    <h2 class="text-warning font-weight-bold">฿<?php echo number_format($monthly_sales, 2); ?></h2>
                   </div>
-                  <div class="sub-title">
-                    <span class="mr-1">Revenue of this year</span> |
-                    <span class="mx-1">35%</span>
-                    <i class="mdi mdi-arrow-up-bold text-success"></i>
+                  <div class="bg-warning-soft rounded-circle p-2 text-warning">
+                    <i class="mdi mdi-calendar-month mdi-24px"></i>
                   </div>
                 </div>
-                <div class="card-body">
-                  <div class="chart-wrapper">
-                    <div>
-                      <div id="spline-area-4"></div>
-                    </div>
-                  </div>
+                <div class="card-body py-1">
+                  <span class="text-muted small">รายได้ปิดกะทั้งหมดของเดือน <?php echo date('m/Y'); ?></span>
                 </div>
               </div>
             </div>
@@ -201,7 +163,7 @@ try {
                           <tr>
                             <td><?php echo htmlspecialchars($item['name']); ?></td>
                             <td class="text-right text-danger font-weight-bold">
-                              <?php echo number_format($item['stock_qty'], 2); ?>
+                              <?php echo number_format($item['storage_qty'], 2); ?> <small class="text-muted"><?php echo $item['unit']; ?></small>
                             </td>
                           </tr>
                         <?php endforeach; ?>

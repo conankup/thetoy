@@ -49,6 +49,14 @@
                         <span class="nav-text">จัดการสต็อกวัตถุดิบ</span>
                     </a>
                 </li>
+                <?php if(in_array($_SESSION['role_id'], [1, 2])): ?>
+                <li>
+                    <a class="sidenav-item-link" href="reconciliations.php">
+                        <i class="mdi mdi-file-document-box-multiple-outline"></i>
+                        <span class="nav-text">ออดิต & กระทบยอดเงินกะ</span>
+                    </a>
+                </li>
+                <?php endif; ?>
 
                 <li class="section-title">สูตรและต้นทุน</li>
                 <li>
@@ -60,6 +68,12 @@
 
                 <?php if($_SESSION['role_id'] == 1): ?>
                 <li class="section-title">รายงาน (Admin Only)</li>
+                <li>
+                    <a class="sidenav-item-link" href="attendance_list.php">
+                        <i class="mdi mdi-account-clock-outline"></i>
+                        <span class="nav-text">ประวัติลงเวลา (Attendance)</span>
+                    </a>
+                </li>
                 <li>
                     <a class="sidenav-item-link" href="audit_logs.php">
                         <i class="mdi mdi-history"></i>
