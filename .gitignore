@@ -1,18 +1,2 @@
-# Local Configuration & Database backups
-backup_*.sql
-connectDB.php
-
-# Employee Webcam Photos and Uploads
-yencha/uploads/**/*.jpg
-yencha/uploads/*.jpg
-yencha/uploads/attendance/*.jpg
-
-# Temp / Scratch files
-*scratch*
-scratch_db_explore.php
-yencha/indexOOOO.php
-yencha/restockOld.php
-
-# OS files
-.DS_Store
-Thumbs.db
+# Ignore Yencha project (which is in its own repository)
+yencha/
