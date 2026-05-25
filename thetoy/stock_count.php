@@ -1,7 +1,8 @@
 <?php
 require_once '../auth_check.php';
 require_once '../connectDB.php';
-checkRole([1, 2, 3, 4]);
+checkRole([1, 2, 3]);
+$is_admin_manager = in_array($_SESSION['role_id'], [1, 2]);
 
 $id = $_GET['id'] ?? 0;
 
@@ -67,7 +68,11 @@ try {
                     <div class="card card-default">
                         <div class="card-header d-flex justify-content-between align-items-center">
                             <div class="d-flex align-items-center">
-                                <a href="daily_reconciliations.php" class="btn btn-outline-secondary btn-sm btn-pill mr-3"><i class="mdi mdi-arrow-left"></i> ย้อนกลับ</a>
+                                <?php if ($is_admin_manager): ?>
+                                    <a href="daily_reconciliations.php" class="btn btn-outline-secondary btn-sm btn-pill mr-3"><i class="mdi mdi-arrow-left"></i> ย้อนกลับ</a>
+                                <?php else: ?>
+                                    <a href="index.php" class="btn btn-outline-secondary btn-sm btn-pill mr-3"><i class="mdi mdi-arrow-left"></i> ย้อนกลับ</a>
+                                <?php endif; ?>
                                 <h2 class="mb-0">รายละเอียดการปิดยอดวันที่: <?= date('d/m/Y', strtotime($recon['reconciliation_date'])) ?></h2>
                             </div>
                             <?php if ($is_completed): ?>
@@ -135,7 +140,9 @@ try {
                                                     <th class="text-center">เสีย/หาย</th>
                                                     <th class="text-center">ลดราคา</th>
                                                     <th class="text-center">ขายไป</th>
-                                                    <th class="text-right">ยอดขาย (฿)</th>
+                                                    <?php if ($is_admin_manager): ?>
+                                                        <th>ยอดขาย (฿)</th>
+                                                    <?php endif; ?>
                                                     <?php if (!$is_completed): ?><th>แก้ไข</th><?php endif; ?>
                                                 </tr>
                                             </thead>
@@ -171,7 +178,9 @@ try {
                                                         <td class="text-center text-danger"><?= $c['lost_damaged_qty'] ?></td>
                                                         <td class="text-center text-info"><?= $c['discounted_qty'] ?></td>
                                                         <td class="text-center text-success"><strong><?= $sold ?></strong></td>
-                                                        <td class="text-right"><?= number_format($revenue, 0) ?></td>
+                                                        <?php if ($is_admin_manager): ?>
+                                                            <td class="text-right"><?= number_format($revenue, 0) ?></td>
+                                                        <?php endif; ?>
                                                         <?php if (!$is_completed): ?>
                                                             <td>
                                                                  <button class="btn btn-sm btn-outline-info btn-pill edit-qty-btn"
@@ -192,8 +201,12 @@ try {
                                             </tbody>
                                             <tfoot>
                                                 <tr class="bg-light">
-                                                    <td colspan="8" class="text-right"><strong>ยอดขายที่ควรได้รวม:</strong></td>
-                                                    <td class="text-right"><strong class="text-success" style="font-size:1.2em;"><?= number_format($total_sales_expected, 0) ?> ฿</strong></td>
+                                                    <?php if ($is_admin_manager): ?>
+                                                        <td colspan="8" class="text-right"><strong>ยอดขายที่ควรได้รวม:</strong></td>
+                                                        <td class="text-right"><strong class="text-success" style="font-size:1.2em;"><?= number_format($total_sales_expected, 0) ?> ฿</strong></td>
+                                                    <?php else: ?>
+                                                        <td colspan="8" class="text-right"><strong>สิ้นสุดรายการตรวจสอบสต๊อกประจำวัน</strong></td>
+                                                    <?php endif; ?>
                                                     <?php if (!$is_completed): ?><td></td><?php endif; ?>
                                                 </tr>
                                             </tfoot>
@@ -263,25 +276,27 @@ try {
                                                 <div class="card-body">
                                                     <h4 class="mb-4 text-center text-dark">กระทบยอดเงินประจำวัน</h4>
 
-                                                    <!-- Section 1: สรุปยอดจากการนับสต๊อก -->
-                                                    <h5 class="mb-3 text-primary"><i class="mdi mdi-chart-bar"></i> สรุปจากการนับสต๊อก</h5>
-                                                    <div class="d-flex justify-content-between mb-2">
-                                                        <span class="text-dark">ยอดขายที่ควรได้ (จำนวนขาย × ราคา)</span>
-                                                        <strong class="text-success"><?= number_format($total_sales_expected, 0) ?> ฿</strong>
-                                                    </div>
-                                                    <div class="d-flex justify-content-between mb-2">
-                                                        <span class="text-dark">ยอดส่วนลดจากรายการสินค้า</span>
-                                                        <strong class="text-info"><?= number_format($total_discount_from_items, 0) ?> ฿</strong>
-                                                    </div>
-                                                    <div class="d-flex justify-content-between mb-2">
-                                                        <span class="text-dark">ยอดของเสีย/ชำรุด (ต้นทุน)</span>
-                                                        <strong class="text-danger"><?= number_format($total_defect_amount, 0) ?> ฿</strong>
-                                                    </div>
-                                                    <div class="d-flex justify-content-between mb-2">
-                                                        <span class="text-dark">ค่าใช้จ่ายวันนี้ (Tab 2)</span>
-                                                        <strong class="text-danger">- <?= number_format($total_exp, 0) ?> ฿</strong>
-                                                    </div>
-                                                    <hr>
+                                                    <!-- Section 1: สรุปยอดจากการนับสต๊อก (เฉพาะ Admin/Manager) -->
+                                                    <?php if ($is_admin_manager): ?>
+                                                        <h5 class="mb-3 text-primary"><i class="mdi mdi-chart-bar"></i> สรุปจากการนับสต๊อก</h5>
+                                                        <div class="d-flex justify-content-between mb-2">
+                                                            <span class="text-dark">ยอดขายที่ควรได้ (จำนวนขาย × ราคา)</span>
+                                                            <strong class="text-success"><?= number_format($total_sales_expected, 0) ?> ฿</strong>
+                                                        </div>
+                                                        <div class="d-flex justify-content-between mb-2">
+                                                            <span class="text-dark">ยอดส่วนลดจากรายการสินค้า</span>
+                                                            <strong class="text-info"><?= number_format($total_discount_from_items, 0) ?> ฿</strong>
+                                                        </div>
+                                                        <div class="d-flex justify-content-between mb-2">
+                                                            <span class="text-dark">ยอดของเสีย/ชำรุด (ต้นทุน)</span>
+                                                            <strong class="text-danger"><?= number_format($total_defect_amount, 0) ?> ฿</strong>
+                                                        </div>
+                                                        <div class="d-flex justify-content-between mb-2">
+                                                            <span class="text-dark">ค่าใช้จ่ายวันนี้ (Tab 2)</span>
+                                                            <strong class="text-danger">- <?= number_format($total_exp, 0) ?> ฿</strong>
+                                                        </div>
+                                                        <hr>
+                                                    <?php endif; ?>
 
                                                     <!-- Section 2: ตรวจสอบเงินในเก๊ะ -->
                                                     <h5 class="mb-3 text-primary" style="margin-top: 20px;"><i class="mdi mdi-cash-register"></i> ตรวจสอบเงินในเก๊ะ</h5>
@@ -330,25 +345,33 @@ try {
 
                                                         <hr>
 
-                                                        <!-- ยอดส่วนลดรวมเพิ่มเติม -->
-                                                        <div class="form-group row">
-                                                            <label class="col-sm-5 col-form-label text-dark"><i class="mdi mdi-sale"></i> ยอดส่วนลดรวมเพิ่มเติม (฿)<br><small class="text-muted">(กรณีจำรายการสินค้าที่ลดไม่ได้)</small></label>
-                                                            <div class="col-sm-7">
-                                                                <input type="number" step="1" class="form-control text-right calc-diff" id="total_discount_extra" value="<?= round($recon['total_discount_amount']) ?>" <?= $is_completed ? 'readonly' : '' ?> style="font-weight: bold; color: #6c757d;">
+                                                        <!-- ยอดส่วนลดรวมเพิ่มเติม (เฉพาะ Admin/Manager) -->
+                                                        <?php if ($is_admin_manager): ?>
+                                                            <div class="form-group row">
+                                                                <label class="col-sm-5 col-form-label text-dark"><i class="mdi mdi-sale"></i> ยอดส่วนลดรวมเพิ่มเติม (฿)<br><small class="text-muted">(กรณีจำรายการสินค้าที่ลดไม่ได้)</small></label>
+                                                                <div class="col-sm-7">
+                                                                    <input type="number" step="1" class="form-control text-right calc-diff" id="total_discount_extra" value="<?= round($recon['total_discount_amount']) ?>" <?= $is_completed ? 'readonly' : '' ?> style="font-weight: bold; color: #6c757d;">
+                                                                </div>
                                                             </div>
-                                                        </div>
+                                                        <?php else: ?>
+                                                            <input type="hidden" id="total_discount_extra" value="0">
+                                                        <?php endif; ?>
 
-                                                        <div class="alert mt-4" id="diffAlert" style="display:none; font-size:1.2em; text-align:center;">
-                                                            ส่วนต่าง: <strong id="diffValue">0</strong> ฿
-                                                        </div>
-
-                                                        <!-- เหตุผลของส่วนต่าง -->
-                                                        <div class="form-group row" id="diffNoteSection" style="display:none;">
-                                                            <label class="col-sm-5 col-form-label text-danger"><strong><i class="mdi mdi-comment-alert-outline"></i> ระบุสาเหตุของส่วนต่าง</strong><br><small class="text-muted">(เช่น ลูกค้าให้ทิป, ทอนเงินผิด, ฯลฯ)</small></label>
-                                                            <div class="col-sm-7">
-                                                                <textarea class="form-control" id="difference_note" rows="2" placeholder="ระบุสาเหตุที่เงินขาดหรือเกิน..." <?= $is_completed ? 'readonly' : '' ?>><?= htmlspecialchars($recon['difference_note'] ?? '') ?></textarea>
+                                                        <?php if ($is_admin_manager): ?>
+                                                            <div class="alert mt-4" id="diffAlert" style="display:none; font-size:1.2em; text-align:center;">
+                                                                ส่วนต่าง: <strong id="diffValue">0</strong> ฿
                                                             </div>
-                                                        </div>
+
+                                                            <!-- เหตุผลของส่วนต่าง -->
+                                                            <div class="form-group row" id="diffNoteSection" style="display:none;">
+                                                                <label class="col-sm-5 col-form-label text-danger"><strong><i class="mdi mdi-comment-alert-outline"></i> ระบุสาเหตุของส่วนต่าง</strong><br><small class="text-muted">(เช่น ลูกค้าให้ทิป, ทอนเงินผิด, ฯลฯ)</small></label>
+                                                                <div class="col-sm-7">
+                                                                    <textarea class="form-control" id="difference_note" rows="2" placeholder="ระบุสาเหตุที่เงินขาดหรือเกิน..." <?= $is_completed ? 'readonly' : '' ?>><?= htmlspecialchars($recon['difference_note'] ?? '') ?></textarea>
+                                                                </div>
+                                                            </div>
+                                                        <?php else: ?>
+                                                            <input type="hidden" id="difference_note" value="">
+                                                        <?php endif; ?>
 
                                                         <?php if (!$is_completed): ?>
                                                             <div class="text-center mt-4">
@@ -471,6 +494,7 @@ try {
         $(document).ready(function() {
             var reconId = <?= $id ?>;
             var isCompleted = <?= $is_completed ? 'true' : 'false' ?>;
+            var isAdminManager = <?= $is_admin_manager ? 'true' : 'false' ?>;
 
             // ===== ระบบคำนวณส่วนต่างอัตโนมัติ (TAB 3) =====
             function calculateDiff() {
@@ -483,6 +507,13 @@ try {
                 // เงินสดส่งมอบ = เงินสดรวมในเก๊ะ - เงินทอนยกไป
                 var cashHandover = totalCashInDrawer - nextCarry;
                 $('#cash_to_handover').val(cashHandover.toLocaleString('th-TH') + ' ฿');
+
+                if (!isAdminManager) {
+                    // พนักงานทั่วไปไม่ต้องแสดงการแจ้งเตือนส่วนต่างและหมายเหตุ
+                    $('#diffAlert').hide();
+                    $('#diffNoteSection').hide();
+                    return;
+                }
 
                 // แบบ A: ส่วนต่าง = (เงินสดส่งมอบ + เงินโอน) - (ยอดขายที่ควรได้ - ยอดส่วนลดรวมเพิ่มเติม)
                 var diff = (cashHandover + transfer) - (expectedSales - discountExtra);
@@ -806,7 +837,11 @@ try {
                             success: function(res) {
                                 if (res.status == 'success') {
                                     Swal.fire('สำเร็จ', 'ปิดยอดประจำวันเรียบร้อยแล้ว!', 'success').then(() => {
-                                        window.location.href = 'daily_reconciliations.php';
+                                        if (isAdminManager) {
+                                            window.location.href = 'daily_reconciliations.php';
+                                        } else {
+                                            window.location.href = 'index.php';
+                                        }
                                     });
                                 } else {
                                     Swal.fire('Error', res.message, 'error');

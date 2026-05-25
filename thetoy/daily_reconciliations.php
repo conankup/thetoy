@@ -1,8 +1,8 @@
 <?php
 require_once '../auth_check.php';
 require_once '../connectDB.php';
-// อนุญาตให้ Admin (1) และ Staff เข้าถึง
-checkRole([1, 2, 3]);
+// อนุญาตให้ Admin (1) และ Manager เข้าถึง
+checkRole([1, 2]);
 
 try {
     // ตั้งค่า Date Filter เริ่มต้นเป็นเดือนปัจจุบัน

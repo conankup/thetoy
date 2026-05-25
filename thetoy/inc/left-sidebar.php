@@ -52,7 +52,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
                         </a>
                     </li>
                 <?php endif; ?>
-                <?php if (isset($_SESSION['role_id']) && in_array($_SESSION['role_id'], [1, 2, 3, 4])): ?>
+                <?php if (isset($_SESSION['role_id']) && in_array($_SESSION['role_id'], [1, 2, 3])): ?>
                     <li class="nav-item <?php echo ($current_page == 'stock_management.php') ? 'active' : ''; ?>">
                         <a class="sidenav-item-link" href="stock_management.php">
                             <i class="mdi mdi-package-variant-closed"></i>
@@ -60,13 +60,22 @@ $current_page = basename($_SERVER['PHP_SELF']);
                         </a>
                     </li>
                 <?php endif; ?>
-                <?php if (isset($_SESSION['role_id']) && in_array($_SESSION['role_id'], [1, 2, 3, 4])): ?>
-                    <li class="nav-item <?php echo ($current_page == 'daily_reconciliations.php') ? 'active' : ''; ?>">
-                        <a class="sidenav-item-link" href="daily_reconciliations.php">
-                            <i class="mdi mdi-cash-register"></i>
-                            <span class="nav-text">นับสต๊อก & ปิดยอดรายวัน</span>
-                        </a>
-                    </li>
+                <?php if (isset($_SESSION['role_id']) && in_array($_SESSION['role_id'], [1, 2, 3])): ?>
+                    <?php if (in_array($_SESSION['role_id'], [1, 2])): ?>
+                        <li class="nav-item <?php echo ($current_page == 'daily_reconciliations.php') ? 'active' : ''; ?>">
+                            <a class="sidenav-item-link" href="daily_reconciliations.php">
+                                <i class="mdi mdi-cash-register"></i>
+                                <span class="nav-text">นับสต๊อก & ปิดยอดรายวัน</span>
+                            </a>
+                        </li>
+                    <?php else: // สิทธิ์ 3 (พนักงานทั่วไป) ?>
+                        <li class="nav-item <?php echo ($current_page == 'today_reconciliation.php') ? 'active' : ''; ?>">
+                            <a class="sidenav-item-link" href="today_reconciliation.php">
+                                <i class="mdi mdi-cash-register"></i>
+                                <span class="nav-text">ปิดยอดประจำวันวันนี้</span>
+                            </a>
+                        </li>
+                    <?php endif; ?>
                 <?php endif; ?>
                 <?php if (isset($_SESSION['role_id']) && $_SESSION['role_id'] == 1): ?>
                     <li class="nav-item <?php echo ($current_page == 'audit_logs.php') ? 'active' : ''; ?>">

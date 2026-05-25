@@ -14,7 +14,7 @@ if (!isset($_SESSION['user_id'])) {
 // แต่หน้า Dashboard ให้เข้าได้ทุกคนเพื่อดูข้อมูลเบื้องต้น
 $action = $_GET['action'] ?? $_POST['action'] ?? '';
 
-if (!in_array($_SESSION['role_id'], [1, 2, 3, 4])) {
+if (!in_array($_SESSION['role_id'], [1, 2, 3])) {
     echo json_encode(['status' => 'error', 'message' => 'ไม่มีสิทธิ์เข้าถึง']);
     exit;
 }
@@ -208,14 +208,19 @@ try {
         $diffDetails = $stmtDiff->fetchAll(PDO::FETCH_ASSOC);
 
         // ===== 7. คัดกรองข้อมูลตามสิทธิ์ (Role-based Data Filtering) =====
-        $is_staff = in_array($_SESSION['role_id'], [3, 4]);
+        $is_staff = ($_SESSION['role_id'] == 3);
         
         if ($is_staff) {
-            // ลบข้อมูลทางการเงินที่ละเอียดอ่อนสำหรับพนักงาน
+            // ลบข้อมูลทางการเงินของระบบทั้งหมดสำหรับพนักงานทั่วไป
+            unset($summary['sum_expected']);
+            unset($summary['sum_cash']);
+            unset($summary['sum_transfer']);
             unset($summary['sum_expenses']);
             unset($summary['sum_diff']);
             
+            // ลบยอดเงินในส่วนยอดขายแยกเจ้าของสินค้า (เหลือเฉพาะจำนวนชิ้น)
             foreach ($ownerSales as &$os) {
+                unset($os['total_sales']);
                 unset($os['gp_rate']);
                 unset($os['gp_amount']);
                 unset($os['net_after_gp']);
@@ -223,6 +228,15 @@ try {
                 unset($os['balance_due']);
             }
             unset($os);
+
+            // ลบยอดเงินในสินค้าขายดี Top 10 (เหลือเฉพาะจำนวนชิ้นที่ขาย)
+            foreach ($topProducts as &$tp) {
+                unset($tp['total_revenue']);
+            }
+            unset($tp);
+            
+            // ซ่อนข้อมูลกราฟรายวัน/รายเดือน
+            $chartData = [];
             
             $diffDetails = []; // ไม่ให้พนักงานเห็นรายละเอียดส่วนต่าง
         }

@@ -1,8 +1,8 @@
 <?php
 require_once '../auth_check.php';
 require_once '../connectDB.php';
-// ทุกสิทธิ์สามารถเข้าดู Dashboard ได้ แต่จะเห็นข้อมูลต่างกัน
-checkRole([1, 2, 3, 4]);
+// ทุกสิทธิ์สามารถเข้าดู Dashboard ได้ แต่จะเห็นข้อมูลต่างกัน (ยกเว้นสิทธิ์ 4 ที่ถูกปิดใช้งาน)
+checkRole([1, 2, 3]);
 $is_admin_manager = in_array($_SESSION['role_id'], [1, 2]);
 ?>
 <!DOCTYPE html>
@@ -60,65 +60,62 @@ $is_admin_manager = in_array($_SESSION['role_id'], [1, 2]);
 
                     <!-- ===== SUMMARY CARDS ===== -->
                     <div class="row mb-4" id="summaryCards">
-                        <div class="col-xl col-sm-6 mb-3">
-                            <div class="card dashboard-card text-white shadow-sm" style="background: linear-gradient(135deg, #6c5ce7, #a29bfe);">
-                                <div class="card-body">
-                                    <h2 class="text-white" id="cardExpected">-</h2>
-                                    <p>รายรับรวม (ยอดขายที่ควรได้)</p>
-                                    <i class="mdi mdi-cart card-icon"></i>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-xl col-sm-6 mb-3">
-                            <div class="card dashboard-card text-white shadow-sm" style="background: linear-gradient(135deg, #00b894, #55efc4);">
-                                <div class="card-body">
-                                    <h2 class="text-white" id="cardCash">-</h2>
-                                    <p>เงินสดส่งมอบรวม</p>
-                                    <i class="mdi mdi-cash card-icon"></i>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-xl col-sm-6 mb-3">
-                            <div class="card dashboard-card text-white shadow-sm" style="background: linear-gradient(135deg, #0984e3, #74b9ff);">
-                                <div class="card-body">
-                                    <h2 class="text-white" id="cardTransfer">-</h2>
-                                    <p>เงินโอนรวม</p>
-                                    <i class="mdi mdi-bank-transfer card-icon"></i>
-                                </div>
-                            </div>
-                        </div>
                         <?php if ($is_admin_manager): ?>
-                        <div class="col-xl col-sm-6 mb-3">
-                            <div class="card dashboard-card text-white shadow-sm" style="background: linear-gradient(135deg, #e17055, #fab1a0);">
-                                <div class="card-body">
-                                    <h2 class="text-white" id="cardExpenses">-</h2>
-                                    <p>ค่าใช้จ่ายรวม</p>
-                                    <i class="mdi mdi-cash-minus card-icon"></i>
+                            <div class="col-xl col-sm-6 mb-3">
+                                <div class="card dashboard-card text-white shadow-sm" style="background: linear-gradient(135deg, #6c5ce7, #a29bfe);">
+                                    <div class="card-body">
+                                        <h2 class="text-white" id="cardExpected">-</h2>
+                                        <p>รายรับรวม (ยอดขายที่ควรได้)</p>
+                                        <i class="mdi mdi-cart card-icon"></i>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <?php endif; ?>
-                        
-                        <?php if ($is_admin_manager): ?>
-                        <div class="col-xl col-sm-6 mb-3">
-                            <div class="card dashboard-card text-white shadow-sm" id="cardDiffWrapper" style="background: linear-gradient(135deg, #fdcb6e, #ffeaa7); cursor: pointer;" title="คลิกเพื่อดูรายละเอียด" data-toggle="modal" data-target="#diffModal">
-                                <div class="card-body">
-                                    <h2 id="cardDiff" style="color: #2d3436;">-</h2>
-                                    <p style="color: #2d3436;">ส่วนต่าง (ขาด/เกิน) <i class="mdi mdi-information-outline"></i></p>
-                                    <i class="mdi mdi-scale-balance card-icon" style="color: #2d3436;"></i>
+                            <div class="col-xl col-sm-6 mb-3">
+                                <div class="card dashboard-card text-white shadow-sm" style="background: linear-gradient(135deg, #00b894, #55efc4);">
+                                    <div class="card-body">
+                                        <h2 class="text-white" id="cardCash">-</h2>
+                                        <p>เงินสดส่งมอบรวม</p>
+                                        <i class="mdi mdi-cash card-icon"></i>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                            <div class="col-xl col-sm-6 mb-3">
+                                <div class="card dashboard-card text-white shadow-sm" style="background: linear-gradient(135deg, #0984e3, #74b9ff);">
+                                    <div class="card-body">
+                                        <h2 class="text-white" id="cardTransfer">-</h2>
+                                        <p>เงินโอนรวม</p>
+                                        <i class="mdi mdi-bank-transfer card-icon"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xl col-sm-6 mb-3">
+                                <div class="card dashboard-card text-white shadow-sm" style="background: linear-gradient(135deg, #e17055, #fab1a0);">
+                                    <div class="card-body">
+                                        <h2 class="text-white" id="cardExpenses">-</h2>
+                                        <p>ค่าใช้จ่ายรวม</p>
+                                        <i class="mdi mdi-cash-minus card-icon"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xl col-sm-6 mb-3">
+                                <div class="card dashboard-card text-white shadow-sm" id="cardDiffWrapper" style="background: linear-gradient(135deg, #fdcb6e, #ffeaa7); cursor: pointer;" title="คลิกเพื่อดูรายละเอียด" data-toggle="modal" data-target="#diffModal">
+                                    <div class="card-body">
+                                        <h2 id="cardDiff" style="color: #2d3436;">-</h2>
+                                        <p style="color: #2d3436;">ส่วนต่าง (ขาด/เกิน) <i class="mdi mdi-information-outline"></i></p>
+                                        <i class="mdi mdi-scale-balance card-icon" style="color: #2d3436;"></i>
+                                    </div>
+                                </div>
+                            </div>
                         <?php else: ?>
-                        <div class="col-xl col-sm-6 mb-3">
-                            <div class="card dashboard-card text-white shadow-sm" style="background: linear-gradient(135deg, #ff7675, #fab1a0);">
-                                <div class="card-body">
-                                    <h2 class="text-white" id="cardTotalQty">-</h2>
-                                    <p>จำนวนชิ้นที่ขายได้รวม</p>
-                                    <i class="mdi mdi-shopping card-icon"></i>
+                            <div class="col-xl col-sm-6 mb-3">
+                                <div class="card dashboard-card text-white shadow-sm" style="background: linear-gradient(135deg, #ff7675, #fab1a0);">
+                                    <div class="card-body">
+                                        <h2 class="text-white" id="cardTotalQty">-</h2>
+                                        <p>จำนวนชิ้นที่ขายได้รวม</p>
+                                        <i class="mdi mdi-shopping card-icon"></i>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
                         <?php endif; ?>
                     </div>
 
@@ -139,8 +136,8 @@ $is_admin_manager = in_array($_SESSION['role_id'], [1, 2]);
                                             <thead>
                                                 <tr>
                                                     <th>เจ้าของสินค้า</th>
-                                                    <th class="text-right">ยอดขาย (฿)</th>
                                                     <?php if ($is_admin_manager): ?>
+                                                        <th class="text-right">ยอดขาย (฿)</th>
                                                         <th class="text-right">หัก GP (฿)</th>
                                                         <th class="text-right">สุทธิ (฿)</th>
                                                         <th class="text-right text-danger">เบิกแล้ว (฿)</th>
@@ -150,7 +147,7 @@ $is_admin_manager = in_array($_SESSION['role_id'], [1, 2]);
                                                 </tr>
                                             </thead>
                                             <tbody id="ownerTableBody">
-                                                <tr><td colspan="<?= $is_admin_manager ? 7 : 3 ?>" class="text-center text-muted py-4">กำลังโหลด...</td></tr>
+                                                <tr><td colspan="<?= $is_admin_manager ? 7 : 2 ?>" class="text-center text-muted py-4">กำลังโหลด...</td></tr>
                                             </tbody>
                                             <tfoot id="ownerTableFoot">
                                             </tfoot>
@@ -198,11 +195,13 @@ $is_admin_manager = in_array($_SESSION['role_id'], [1, 2]);
                                                     <th style="width: 40px;">#</th>
                                                     <th>สินค้า</th>
                                                     <th class="text-center">ขายไป</th>
-                                                    <th class="text-right">ยอดขาย (฿)</th>
+                                                    <?php if ($is_admin_manager): ?>
+                                                        <th class="text-right">ยอดขาย (฿)</th>
+                                                    <?php endif; ?>
                                                 </tr>
                                             </thead>
                                             <tbody id="topProductsBody">
-                                                <tr><td colspan="4" class="text-center text-muted py-4">กำลังโหลด...</td></tr>
+                                                <tr><td colspan="<?= $is_admin_manager ? 4 : 3 ?>" class="text-center text-muted py-4">กำลังโหลด...</td></tr>
                                             </tbody>
                                         </table>
                                     </div>
@@ -428,7 +427,7 @@ $is_admin_manager = in_array($_SESSION['role_id'], [1, 2]);
                 if (mode === 'daily') {
                     msg += '<br><small class="text-muted">(หากยังไม่ได้กด "ปิดยอด" ของวันนี้ ข้อมูลจะไม่แสดงในหน้านี้)</small>';
                 }
-                body = '<tr><td colspan="' + (isAdmin ? 7 : 3) + '" class="text-center text-muted py-4">' + msg + '</td></tr>';
+                body = '<tr><td colspan="' + (isAdmin ? 7 : 2) + '" class="text-center text-muted py-4">' + msg + '</td></tr>';
             } else {
                 owners.forEach(function(o) {
                     totalSales += parseFloat(o.total_sales);
@@ -436,18 +435,21 @@ $is_admin_manager = in_array($_SESSION['role_id'], [1, 2]);
                     
                     body += '<tr>';
                     body += '<td><strong>' + escapeHtml(o.owner_name) + '</strong></td>';
-                    body += '<td class="text-right">' + formatDecimal(o.total_sales) + '</td>';
                     
-                    if (isAdmin && o.gp_amount !== undefined) {
-                        totalGP += parseFloat(o.gp_amount);
-                        totalNet += parseFloat(o.net_after_gp);
-                        totalWithdrawn += parseFloat(o.total_withdrawn);
-                        totalBalance += parseFloat(o.balance_due);
+                    if (isAdmin) {
+                        body += '<td class="text-right">' + formatDecimal(o.total_sales) + '</td>';
                         
-                        body += '<td class="text-right text-muted">' + formatDecimal(o.gp_amount) + ' <small>(' + parseFloat(o.gp_rate).toFixed(0) + '%)</small></td>';
-                        body += '<td class="text-right">' + formatDecimal(o.net_after_gp) + '</td>';
-                        body += '<td class="text-right text-danger">-' + formatDecimal(o.total_withdrawn) + '</td>';
-                        body += '<td class="text-right text-success font-weight-bold">' + formatDecimal(o.balance_due) + '</td>';
+                        if (o.gp_amount !== undefined) {
+                            totalGP += parseFloat(o.gp_amount);
+                            totalNet += parseFloat(o.net_after_gp);
+                            totalWithdrawn += parseFloat(o.total_withdrawn);
+                            totalBalance += parseFloat(o.balance_due);
+                            
+                            body += '<td class="text-right text-muted">' + formatDecimal(o.gp_amount) + ' <small>(' + parseFloat(o.gp_rate).toFixed(0) + '%)</small></td>';
+                            body += '<td class="text-right">' + formatDecimal(o.net_after_gp) + '</td>';
+                            body += '<td class="text-right text-danger">-' + formatDecimal(o.total_withdrawn) + '</td>';
+                            body += '<td class="text-right text-success font-weight-bold">' + formatDecimal(o.balance_due) + '</td>';
+                        }
                     }
                     
                     body += '<td class="text-center">' + o.total_qty_sold + '</td>';
@@ -459,8 +461,8 @@ $is_admin_manager = in_array($_SESSION['role_id'], [1, 2]);
             // Footer
             var foot = '<tr class="font-weight-bold bg-light">';
             foot += '<td class="text-right">รวม</td>';
-            foot += '<td class="text-right">' + formatDecimal(totalSales) + '</td>';
             if (isAdmin) {
+                foot += '<td class="text-right">' + formatDecimal(totalSales) + '</td>';
                 foot += '<td class="text-right">' + formatDecimal(totalGP) + '</td>';
                 foot += '<td class="text-right">' + formatDecimal(totalNet) + '</td>';
                 foot += '<td class="text-right text-danger">-' + formatDecimal(totalWithdrawn) + '</td>';
@@ -475,7 +477,7 @@ $is_admin_manager = in_array($_SESSION['role_id'], [1, 2]);
         function renderTopProducts(products) {
             var body = '';
             if (products.length === 0) {
-                body = '<tr><td colspan="4" class="text-center text-muted py-4">ไม่มีข้อมูล</td></tr>';
+                body = '<tr><td colspan="' + (isAdmin ? 4 : 3) + '" class="text-center text-muted py-4">ไม่มีข้อมูล</td></tr>';
             } else {
                 products.forEach(function(p, i) {
                     var rankClass = 'rank-normal';
@@ -487,7 +489,9 @@ $is_admin_manager = in_array($_SESSION['role_id'], [1, 2]);
                     body += '<td><span class="top-product-rank ' + rankClass + '">' + (i + 1) + '</span></td>';
                     body += '<td>' + escapeHtml(p.name) + '</td>';
                     body += '<td class="text-center"><strong>' + p.total_sold + '</strong></td>';
-                    body += '<td class="text-right">' + formatNumber(p.total_revenue) + ' ฿</td>';
+                    if (isAdmin) {
+                        body += '<td class="text-right">' + formatNumber(p.total_revenue) + ' ฿</td>';
+                    }
                     body += '</tr>';
                 });
             }
