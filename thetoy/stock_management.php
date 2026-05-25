@@ -231,7 +231,7 @@ try {
                                                         <td style="vertical-align: middle;"><?= htmlspecialchars($p['barcode']) ?></td>
                                                         <td style="vertical-align: middle;">
                                                             <?php if(!empty($p['image']) && file_exists('uploads/' . $p['image'])): ?>
-                                                                <img src="uploads/<?= htmlspecialchars($p['image']) ?>" alt="" style="width:40px; height:40px; object-fit:cover; border-radius:5px; margin-right:10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                                                                <img src="uploads/<?= htmlspecialchars($p['image']) ?>" class="view-img" data-src="uploads/<?= htmlspecialchars($p['image']) ?>" alt="" style="width:40px; height:40px; object-fit:cover; border-radius:5px; margin-right:10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); cursor: zoom-in;" title="คลิกเพื่อขยายรูปภาพ">
                                                             <?php endif; ?>
                                                             <strong style="font-size: 1.05em;"><?= htmlspecialchars($p['name']) ?></strong>
                                                         </td>
@@ -478,7 +478,7 @@ try {
                         if(res.status == 'success') {
                             let imgHtml = '';
                             if(res.data.image) {
-                                imgHtml = '<img src="uploads/'+res.data.image+'" style="height:50px; width:50px; object-fit:cover; border-radius:5px; margin-right:10px;">';
+                                imgHtml = '<img src="uploads/'+res.data.image+'" class="view-img" data-src="uploads/'+res.data.image+'" style="height:50px; width:50px; object-fit:cover; border-radius:5px; margin-right:10px; cursor: zoom-in;" title="คลิกเพื่อขยายรูปภาพ">';
                             }
                             $(infoDivId).html('<div class="d-flex align-items-center justify-content-center">' + imgHtml + '<strong>' + res.data.name + '</strong></div>');
                             
@@ -527,6 +527,20 @@ try {
                 } else if(e.target.id === 'reduce-tab') {
                     $('#red_barcode').focus();
                 }
+            });
+
+            // ดูรูปภาพขนาดใหญ่ (ใช้ Event Delegation เพื่อให้กดรูปภาพที่โหลดมาจาก Ajax ได้ด้วย)
+            $(document).on('click', '.view-img', function() {
+                var imgSrc = $(this).data('src');
+                Swal.fire({
+                    imageUrl: imgSrc,
+                    imageAlt: 'Product Image',
+                    showConfirmButton: false,
+                    showCloseButton: true,
+                    customClass: {
+                        popup: 'bg-transparent shadow-none'
+                    }
+                });
             });
         });
     </script>
