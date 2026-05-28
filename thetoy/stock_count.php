@@ -107,15 +107,15 @@ try {
                                 <div class="tab-pane fade show active" id="stock" role="tabpanel" aria-labelledby="stock-tab">
                                     <?php if (!$is_completed): ?>
                                         <div class="row mb-4">
-                                            <div class="col-md-6">
-                                                 <button type="button" class="btn btn-primary btn-pill btn-block shadow-sm" id="btnScanCamera">
-                                                    <i class="mdi mdi-camera"></i> เปิดกล้องสแกนเพื่อนับสต๊อก
+                                            <div class="col-md-6 mb-3 mb-md-0">
+                                                 <button type="button" class="btn btn-primary btn-pill btn-block shadow-sm" id="btnScanCamera" style="height: 43px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                                                    <i class="mdi mdi-camera" style="font-size: 1.25rem;"></i> เปิดกล้องสแกนเพื่อนับสต๊อก
                                                 </button>
                                             </div>
                                             <div class="col-md-6">
                                                 <form id="formManualBarcode" class="d-flex">
-                                                    <input type="text" class="form-control" id="manual_barcode" placeholder="หรือ ยิงบาร์โค้ดจากเครื่องอ่าน USB..." autofocus>
-                                                     <button type="submit" class="btn btn-outline-secondary btn-pill ml-2">ค้นหา</button>
+                                                    <input type="text" class="form-control" id="manual_barcode" placeholder="ยิงบาร์โค้ด หรือพิมพ์รหัส..." autofocus style="border-top-left-radius: 20px; border-bottom-left-radius: 20px; height: 43px; font-weight: 600;">
+                                                     <button type="submit" class="btn btn-outline-secondary ml-0" style="border-top-right-radius: 20px; border-bottom-right-radius: 20px; border-top-left-radius: 0; border-bottom-left-radius: 0; border-left: none; height: 43px; font-weight: 700; padding: 0 25px;">ค้นหา</button>
                                                 </form>
                                             </div>
                                         </div>

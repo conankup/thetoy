@@ -82,12 +82,14 @@ try {
                                                         <input type="hidden" name="action" value="receive_storage">
                                                         <div class="form-group row">
                                                             <label class="col-sm-3 col-form-label">รหัสบาร์โค้ด</label>
-                                                            <div class="col-sm-7">
-                                                                <input type="text" class="form-control form-control-lg barcode-input" name="barcode" id="rec_barcode" autofocus required data-infodiv="#rec_info" placeholder="สแกนหรือพิมพ์บาร์โค้ด...">
+                                                            <div class="col-sm-9">
+                                                                <div class="input-group">
+                                                                    <input type="text" class="form-control form-control-lg barcode-input" name="barcode" id="rec_barcode" autofocus required data-infodiv="#rec_info" placeholder="สแกนหรือพิมพ์บาร์โค้ด..." style="border-top-left-radius: 10px; border-bottom-left-radius: 10px;">
+                                                                    <div class="input-group-append">
+                                                                        <button type="button" class="btn btn-outline-dark btn-scan-cam" data-target="#rec_barcode" style="border-top-right-radius: 10px; border-bottom-right-radius: 10px; padding: 0 20px;"><i class="mdi mdi-camera" style="font-size: 1.25rem;"></i></button>
+                                                                    </div>
+                                                                </div>
                                                                 <div id="rec_info" class="mt-2 text-center text-info" style="min-height: 40px;"></div>
-                                                            </div>
-                                                            <div class="col-sm-2">
-                                                                <button type="button" class="btn btn-outline-dark w-100 btn-scan-cam btn-pill" data-target="#rec_barcode"><i class="mdi mdi-camera"></i></button>
                                                             </div>
                                                         </div>
                                                         <div class="form-group row align-items-center">
@@ -124,12 +126,14 @@ try {
                                                         <input type="hidden" name="action" value="transfer_front">
                                                         <div class="form-group row">
                                                             <label class="col-sm-3 col-form-label">รหัสบาร์โค้ด</label>
-                                                            <div class="col-sm-7">
-                                                                <input type="text" class="form-control barcode-input" name="barcode" id="trans_barcode" required data-infodiv="#trans_info">
+                                                            <div class="col-sm-9">
+                                                                <div class="input-group">
+                                                                    <input type="text" class="form-control barcode-input" name="barcode" id="trans_barcode" required data-infodiv="#trans_info" placeholder="สแกนหรือพิมพ์บาร์โค้ด..." style="border-top-left-radius: 10px; border-bottom-left-radius: 10px;">
+                                                                    <div class="input-group-append">
+                                                                        <button type="button" class="btn btn-outline-dark btn-scan-cam" data-target="#trans_barcode" style="border-top-right-radius: 10px; border-bottom-right-radius: 10px; padding: 0 20px;"><i class="mdi mdi-camera" style="font-size: 1.2rem;"></i></button>
+                                                                    </div>
+                                                                </div>
                                                                 <div id="trans_info" class="mt-2 text-center text-info" style="min-height: 40px;"></div>
-                                                            </div>
-                                                            <div class="col-sm-2">
-                                                                <button type="button" class="btn btn-outline-dark w-100 btn-scan-cam btn-pill" data-target="#trans_barcode"><i class="mdi mdi-camera"></i></button>
                                                             </div>
                                                         </div>
                                                         <div class="form-group row">
@@ -159,12 +163,14 @@ try {
                                                         <input type="hidden" name="action" value="return_storage">
                                                         <div class="form-group row">
                                                             <label class="col-sm-3 col-form-label">รหัสบาร์โค้ด</label>
-                                                            <div class="col-sm-7">
-                                                                <input type="text" class="form-control barcode-input" name="barcode" id="ret_barcode" required data-infodiv="#ret_info">
+                                                            <div class="col-sm-9">
+                                                                <div class="input-group">
+                                                                    <input type="text" class="form-control barcode-input" name="barcode" id="ret_barcode" required data-infodiv="#ret_info" placeholder="สแกนหรือพิมพ์บาร์โค้ด..." style="border-top-left-radius: 10px; border-bottom-left-radius: 10px;">
+                                                                    <div class="input-group-append">
+                                                                        <button type="button" class="btn btn-outline-dark btn-scan-cam" data-target="#ret_barcode" style="border-top-right-radius: 10px; border-bottom-right-radius: 10px; padding: 0 20px;"><i class="mdi mdi-camera" style="font-size: 1.2rem;"></i></button>
+                                                                    </div>
+                                                                </div>
                                                                 <div id="ret_info" class="mt-2 text-center text-info" style="min-height: 40px;"></div>
-                                                            </div>
-                                                            <div class="col-sm-2">
-                                                                <button type="button" class="btn btn-outline-dark w-100 btn-scan-cam btn-pill" data-target="#ret_barcode"><i class="mdi mdi-camera"></i></button>
                                                             </div>
                                                         </div>
                                                         <div class="form-group row">
@@ -194,12 +200,14 @@ try {
                                                         <input type="hidden" name="action" value="reduce_storage">
                                                         <div class="form-group row">
                                                             <label class="col-sm-3 col-form-label">รหัสบาร์โค้ด</label>
-                                                            <div class="col-sm-7">
-                                                                <input type="text" class="form-control barcode-input" name="barcode" id="red_barcode" required data-infodiv="#red_info">
+                                                            <div class="col-sm-9">
+                                                                <div class="input-group">
+                                                                    <input type="text" class="form-control barcode-input" name="barcode" id="red_barcode" required data-infodiv="#red_info" placeholder="สแกนหรือพิมพ์บาร์โค้ด..." style="border-top-left-radius: 10px; border-bottom-left-radius: 10px;">
+                                                                    <div class="input-group-append">
+                                                                        <button type="button" class="btn btn-outline-dark btn-scan-cam" data-target="#red_barcode" style="border-top-right-radius: 10px; border-bottom-right-radius: 10px; padding: 0 20px;"><i class="mdi mdi-camera" style="font-size: 1.2rem;"></i></button>
+                                                                    </div>
+                                                                </div>
                                                                 <div id="red_info" class="mt-2 text-center text-info" style="min-height: 40px;"></div>
-                                                            </div>
-                                                            <div class="col-sm-2">
-                                                                <button type="button" class="btn btn-outline-dark w-100 btn-scan-cam btn-pill" data-target="#red_barcode"><i class="mdi mdi-camera"></i></button>
                                                             </div>
                                                         </div>
                                                         <div class="form-group row">

@@ -61,7 +61,7 @@
 - [x] **ปรับปรุงดีไซน์ (UI Refactoring):** ใช้ `btn-pill` และปรับตารางให้สวยงามทันสมัยทั้งระบบ
 - [x] **ระบบ Audit Trail แบบละเอียด:** บันทึกทุกการกระทำของผู้ใช้ พร้อมระบบความปลอดภัยในการเก็บ Log (Role Obfuscation)
 - [ ] **ระบบ Export รายงาน:** เพิ่มความสามารถในการ Export รายงานต่างๆ เป็น PDF หรือ Excel
-- [ ] **ปรับปรุงประสิทธิภาพบนมือถือ (Mobile Responsive UI):** ให้พนักงานขายใช้งานบน Tablet ได้ลื่นไหลยิ่งขึ้น
+- [x] **ปรับปรุงประสิทธิภาพบนมือถือ (Mobile Responsive UI):** ปรับปรุงโครงสร้าง Form input-group, scrollable tab navigation, stacked filter และตารางให้พนักงานขายใช้งานบน Mobile & Tablet ได้ลื่นไหลยิ่งขึ้น
 
 ---
 
