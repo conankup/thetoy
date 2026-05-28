@@ -449,7 +449,22 @@ $is_admin_manager = in_array($_SESSION['role_id'], [1, 2]);
                             body += '<td class="text-right text-muted">' + formatDecimal(o.gp_amount) + ' <small>(' + parseFloat(o.gp_rate).toFixed(0) + '%)</small></td>';
                             body += '<td class="text-right">' + formatDecimal(o.net_after_gp) + '</td>';
                             body += '<td class="text-right text-danger">-' + formatDecimal(o.total_withdrawn) + '</td>';
-                            body += '<td class="text-right text-success font-weight-bold">' + formatDecimal(o.balance_due) + '</td>';
+                            
+                            // ปรับการแสดงผลคงเหลือตามสถานะปิดยอดบัญชีรายเดือน
+                            let balanceHtml = '';
+                            let mode = $('.btn-mode.active').data('mode');
+                            if (o.settlement_status === 'paid') {
+                                balanceHtml = '<span class="text-success font-weight-bold">' + formatDecimal(o.balance_due) + '</span> <span class="badge badge-success text-white py-1 px-2 btn-pill ml-1" style="font-size: 0.72rem; font-weight: normal;"><i class="mdi mdi-check"></i> จ่ายแล้ว</span>';
+                            } else if (o.settlement_status === 'pending') {
+                                balanceHtml = '<span class="text-primary font-weight-bold">' + formatDecimal(o.balance_due) + '</span> <span class="badge badge-warning text-white py-1 px-2 btn-pill ml-1" style="font-size: 0.72rem; font-weight: normal;"><i class="mdi mdi-clock-outline"></i> รอโอน</span>';
+                            } else {
+                                if (mode === 'monthly') {
+                                    balanceHtml = '<span class="text-dark font-weight-bold">' + formatDecimal(o.balance_due) + '</span> <span class="badge badge-secondary text-white py-1 px-2 btn-pill ml-1" style="font-size: 0.72rem; font-weight: normal;"><i class="mdi mdi-help-circle-outline"></i> ยังไม่ปิดยอด</span>';
+                                } else {
+                                    balanceHtml = '<span class="text-dark font-weight-bold">' + formatDecimal(o.balance_due) + '</span>';
+                                }
+                            }
+                            body += '<td class="text-right" style="white-space: nowrap;">' + balanceHtml + '</td>';
                         }
                     }
                     

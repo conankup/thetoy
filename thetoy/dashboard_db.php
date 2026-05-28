@@ -141,12 +141,32 @@ try {
         $stmtWithdraw->execute([':start' => $start_date, ':end' => $end_date]);
         $withdrawalsMap = $stmtWithdraw->fetchAll(PDO::FETCH_KEY_PAIR);
 
+        // ดึงสถานะการปิดยอดรายเดือน (ถ้ามี) เฉพาะกรณีมุมมองรายเดือน
+        $settlementsMap = [];
+        if ($mode == 'monthly') {
+            $stmtSettlement = $conn->prepare("
+                SELECT owner_id, status 
+                FROM owner_monthly_settlements 
+                WHERE settlement_month = ?
+            ");
+            $stmtSettlement->execute([$month]);
+            $settlementsMap = $stmtSettlement->fetchAll(PDO::FETCH_KEY_PAIR);
+        }
+
         // คำนวณ GP และยอดเงินคงเหลือ สำหรับแต่ละเจ้าของ
         foreach ($ownerSales as &$os) {
             $os['gp_amount'] = round($os['total_sales'] * $os['gp_rate'] / 100, 2);
             $os['net_after_gp'] = round($os['total_sales'] - $os['gp_amount'], 2);
             $os['total_withdrawn'] = isset($withdrawalsMap[$os['owner_id']]) ? floatval($withdrawalsMap[$os['owner_id']]) : 0;
-            $os['balance_due'] = round($os['net_after_gp'] - $os['total_withdrawn'], 2);
+            
+            $status = isset($settlementsMap[$os['owner_id']]) ? $settlementsMap[$os['owner_id']] : 'none';
+            $os['settlement_status'] = $status;
+
+            if ($status == 'paid') {
+                $os['balance_due'] = 0.00; // จ่ายเงินเรียบร้อยแล้ว ไม่มียอดคงค้าง
+            } else {
+                $os['balance_due'] = round($os['net_after_gp'] - $os['total_withdrawn'], 2);
+            }
         }
         unset($os);
 
