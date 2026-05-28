@@ -137,8 +137,6 @@
                             <div class="form-group mb-4">
                                 <label class="small font-weight-bold"><i class="fas fa-store-alt mr-1"></i> เลือกระบบที่ต้องการใช้งาน</label>
                                 <select name="target_app" class="form-control" required style="height: auto; padding: 12px; border: 2px solid #eef2f5;">
-                                    <option value="" disabled selected>--- กรุณาเลือกสาขา/ระบบ ---</option>                            
-                                    <option value="yencha">🧋 ระบบจัดการร้าน Yen Cha</option>
                                     <option value="thetoy">🧸 ระบบจัดการร้าน The Toy</option>
                                 </select>
                             </div>

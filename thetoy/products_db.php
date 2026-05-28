@@ -28,6 +28,7 @@ try {
         $price = floatval($_POST['price']);
         $cost = floatval($_POST['cost']);
         $owner_id = intval($_POST['owner_id']);
+        $min_qty = isset($_POST['min_qty']) ? intval($_POST['min_qty']) : 3;
         
         // 1. จัดการบาร์โค้ดว่าง
         if (empty($barcode)) {
@@ -73,11 +74,11 @@ try {
 
         // 4. บันทึกข้อมูล (Add หรือ Edit)
         if ($action == 'add') {
-            $stmt = $conn->prepare("INSERT INTO products (barcode, name, price, cost, owner_id, status, image, created_by) 
-                                    VALUES (:barcode, :name, :price, :cost, :owner_id, 'active', :image, :created_by)");
+            $stmt = $conn->prepare("INSERT INTO products (barcode, name, price, cost, owner_id, status, image, min_qty, created_by) 
+                                    VALUES (:barcode, :name, :price, :cost, :owner_id, 'active', :image, :min_qty, :created_by)");
             $stmt->execute([
                 ':barcode' => $barcode, ':name' => $name, ':price' => $price, ':cost' => $cost,
-                ':owner_id' => $owner_id, ':image' => $imageName, ':created_by' => $user_id
+                ':owner_id' => $owner_id, ':image' => $imageName, ':min_qty' => $min_qty, ':created_by' => $user_id
             ]);
             
             $new_id = $conn->lastInsertId();
@@ -92,11 +93,11 @@ try {
 
             $imageSQL = $imageName ? ", image = :image" : "";
             $sql = "UPDATE products SET barcode = :barcode, name = :name, price = :price, cost = :cost, 
-                    owner_id = :owner_id, status = :status, updated_by = :updated_by {$imageSQL} WHERE id = :id";
+                    owner_id = :owner_id, status = :status, min_qty = :min_qty, updated_by = :updated_by {$imageSQL} WHERE id = :id";
             
             $paramsUpdate = [
                 ':barcode' => $barcode, ':name' => $name, ':price' => $price, ':cost' => $cost,
-                ':owner_id' => $owner_id, ':status' => $_POST['status'], ':updated_by' => $user_id, ':id' => $id
+                ':owner_id' => $owner_id, ':status' => $_POST['status'], ':min_qty' => $min_qty, ':updated_by' => $user_id, ':id' => $id
             ];
             if ($imageName) $paramsUpdate[':image'] = $imageName;
 

@@ -114,13 +114,25 @@ try {
                                                 <td>
                                                     <?php 
                                                         $totalQty = intval($p['storage_qty'] ?? 0) + intval($p['front_qty'] ?? 0);
+                                                        $minQty = intval($p['min_qty'] ?? 3);
+                                                        if ($totalQty == 0) {
+                                                            $badgeClass = 'badge-danger';
+                                                        } elseif ($totalQty <= $minQty) {
+                                                            $badgeClass = 'badge-warning text-dark';
+                                                        } else {
+                                                            $badgeClass = 'badge-success';
+                                                        }
                                                     ?>
-                                                    <span class="badge <?= $totalQty > 0 ? 'badge-success' : 'badge-danger' ?>" style="font-size: 13px; padding: 5px 10px;">
+                                                    <span class="badge <?= $badgeClass ?>" style="font-size: 13px; padding: 5px 10px;" title="เกณฑ์แจ้งเตือนขั้นต่ำ: <?= $minQty ?> ชิ้น">
                                                         <?= number_format($totalQty) ?>
                                                     </span>
                                                     <br>
                                                     <small class="text-muted" style="font-size: 11px;">
                                                         หน้า: <?= number_format($p['front_qty'] ?? 0) ?> | หลัง: <?= number_format($p['storage_qty'] ?? 0) ?>
+                                                    </small>
+                                                    <br>
+                                                    <small class="text-secondary" style="font-size: 10px; font-weight: bold;">
+                                                        (แจ้งเตือนที่: <?= $minQty ?>)
                                                     </small>
                                                 </td>
                                                 <td><?= htmlspecialchars($p['owner_name'] ?? 'ไม่มีเจ้าของ') ?></td>
@@ -144,6 +156,7 @@ try {
                                                         data-cost="<?= $p['cost'] ?>"
                                                         data-owner="<?= $p['owner_id'] ?>"
                                                         data-status="<?= $p['status'] ?>"
+                                                        data-min-qty="<?= intval($p['min_qty'] ?? 3) ?>"
                                                         data-image="<?= htmlspecialchars($p['image'] ?? '') ?>"
                                                         data-toggle="modal" data-target="#editProductModal"
                                                         title="แก้ไข">
@@ -224,6 +237,10 @@ try {
                                 <?php endforeach; ?>
                             </select>
                         </div>
+                        <div class="form-group">
+                            <label>จำนวนแจ้งเตือนขั้นต่ำ (ชิ้น) <span class="text-danger">*</span></label>
+                            <input type="number" class="form-control" name="min_qty" value="3" min="0" required placeholder="หากเหลือน้อยกว่าหรือเท่ากับจำนวนนี้ ระบบจะแสดงการแจ้งเตือน">
+                        </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">ยกเลิก</button>
@@ -285,6 +302,10 @@ try {
                             </select>
                         </div>
                         <div class="form-group">
+                            <label>จำนวนแจ้งเตือนขั้นต่ำ (ชิ้น) <span class="text-danger">*</span></label>
+                            <input type="number" class="form-control" name="min_qty" id="edit_min_qty" min="0" required placeholder="หากเหลือน้อยกว่าหรือเท่ากับจำนวนนี้ ระบบจะแสดงการแจ้งเตือน">
+                        </div>
+                        <div class="form-group">
                             <label>สถานะ</label>
                             <select class="form-control" name="status" id="edit_status">
                                 <option value="active">พร้อมขาย</option>
@@ -344,6 +365,7 @@ try {
                 $('#edit_cost').val(btn.data('cost'));
                 $('#edit_owner_id').val(btn.data('owner'));
                 $('#edit_status').val(btn.data('status'));
+                $('#edit_min_qty').val(btn.data('min-qty'));
             });
 
             // Submit Add (ใช้ FormData เพราะมีอัพโหลดไฟล์)

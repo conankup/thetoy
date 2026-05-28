@@ -28,6 +28,29 @@
 $(document).ready(function () {
   "use strict";
 
+  /*======== GLOBAL DATATABLES DEFAULT CONFIG & AUTO-SCROLL TO TOP ========*/
+  if ($.fn.dataTable) {
+    $.extend(true, $.fn.dataTable.defaults, {
+      language: {
+        paginate: {
+          previous: '<i class="mdi mdi-chevron-left"></i>',
+          next: '<i class="mdi mdi-chevron-right"></i>',
+          first: '<i class="mdi mdi-page-first"></i>',
+          last: '<i class="mdi mdi-page-last"></i>'
+        }
+      }
+    });
+
+    $(document).on('click', '.dataTables_paginate .paginate_button:not(.disabled)', function () {
+      var table = $(this).closest('.dataTables_wrapper').find('table');
+      if (table.length) {
+        $('html, body').animate({
+          scrollTop: table.offset().top - 120
+        }, 400);
+      }
+    });
+  }
+
   /*======== 1. SCROLLBAR CONTENT ========*/
 
   /*======== 2. TOOLTIPS AND POPOVER ========*/

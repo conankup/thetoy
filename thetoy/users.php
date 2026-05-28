@@ -271,11 +271,7 @@ checkRole([1]); // อนุญาต Admin
                 "bInfo": false,
                 "language": {
                     "search": "",
-                    "searchPlaceholder": "Search...",
-                    "paginate": {
-                        "previous": "<",
-                        "next": ">"
-                    }
+                    "searchPlaceholder": "Search..."
                 },
                 "columnDefs": [{
                     "orderable": false,

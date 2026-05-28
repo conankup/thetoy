@@ -217,7 +217,7 @@ $is_admin_manager = in_array($_SESSION['role_id'], [1, 2]);
                                 <div class="card-body">
                                     <div class="section-title">
                                         <i class="mdi mdi-alert text-danger"></i>
-                                        สินค้าใกล้หมด (คงเหลือ ≤ 3 ชิ้น)
+                                        สินค้าใกล้หมด (คงเหลือต่ำกว่าเกณฑ์แจ้งเตือน)
                                     </div>
                                     <div class="table-responsive">
                                         <table class="table table-sm mb-0">
@@ -623,12 +623,13 @@ $is_admin_manager = in_array($_SESSION['role_id'], [1, 2]);
             } else {
                 pageItems.forEach(function(item) {
                     var qty = parseInt(item.total_qty);
+                    var minQty = parseInt(item.min_qty || 3);
                     var badgeClass, badgeText, rowClass;
                     if (qty <= 0) {
                         badgeClass = 'low-stock-0';
                         badgeText  = '❌ หมดแล้ว!';
                         rowClass   = 'low-stock-row-0';
-                    } else if (qty <= 2) {
+                    } else if (qty <= Math.ceil(minQty / 2)) {
                         badgeClass = 'low-stock-critical';
                         badgeText  = '⚠️ ' + qty + ' ชิ้น';
                         rowClass   = 'low-stock-row-critical';
@@ -637,7 +638,7 @@ $is_admin_manager = in_array($_SESSION['role_id'], [1, 2]);
                         badgeText  = '⚡ ' + qty + ' ชิ้น';
                         rowClass   = '';
                     }
-                    body += '<tr class="' + rowClass + '">';
+                    body += '<tr class="' + rowClass + '" title="เกณฑ์แจ้งเตือนสินค้าชิ้นนี้คือ ' + minQty + ' ชิ้น">';
                     body += '<td><strong>' + escapeHtml(item.name) + '</strong></td>';
                     body += '<td class="text-center"><span class="low-stock-badge ' + badgeClass + '">' + badgeText + '</span></td>';
                     body += '<td>' + escapeHtml(item.owner_name) + '</td>';

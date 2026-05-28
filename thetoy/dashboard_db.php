@@ -208,15 +208,16 @@ try {
             $chartData = $stmtChart->fetchAll(PDO::FETCH_ASSOC);
         }
 
-        // ===== 5. สินค้าใกล้หมด (front+storage <= 3) =====
+        // ===== 5. สินค้าใกล้หมด (front+storage <= min_qty) =====
         $stmtLow = $conn->prepare("
             SELECT 
                 p.name,
                 (p.front_qty + p.storage_qty) AS total_qty,
-                COALESCE(o.name, '-') AS owner_name
+                COALESCE(o.name, '-') AS owner_name,
+                p.min_qty
             FROM products p
             LEFT JOIN item_owners o ON p.owner_id = o.id
-            WHERE (p.front_qty + p.storage_qty) <= 3 
+            WHERE (p.front_qty + p.storage_qty) <= p.min_qty 
               AND p.status = 'active'
             ORDER BY (p.front_qty + p.storage_qty) ASC, p.name ASC
         ");

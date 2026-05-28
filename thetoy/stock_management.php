@@ -234,10 +234,19 @@ try {
                                         <table id="stockTable" class="table table-hover table-premium" style="width:100%">
                                             <thead class="bg-light">
                                                 <tr>
-                                                    <th>รหัสบาร์โค้ด</th>
+                                                    <th>
+                                                        <span class="d-none d-md-inline">รหัสบาร์โค้ด</span>
+                                                        <span class="d-inline d-md-none">บาร์โค้ด</span>
+                                                    </th>
                                                     <th>ชื่อสินค้า</th>
-                                                    <th class="text-center">ของในตู้ (Storage)</th>
-                                                    <th class="text-center">ของหน้าร้าน (Front)</th>
+                                                    <th class="text-center">
+                                                        <span class="d-none d-md-inline">ของในตู้ (Storage)</span>
+                                                        <span class="d-inline d-md-none"><i class="mdi mdi-archive-outline"></i> ในตู้</span>
+                                                    </th>
+                                                    <th class="text-center">
+                                                        <span class="d-none d-md-inline">ของหน้าร้าน (Front)</span>
+                                                        <span class="d-inline d-md-none"><i class="mdi mdi-storefront-outline"></i> หน้าร้าน</span>
+                                                    </th>
                                                 </tr>
                                             </thead>
                                             <tbody>
