@@ -45,6 +45,9 @@ try {
                         <div class="card-header d-flex justify-content-between align-items-center bg-white" style="border-radius: 12px 12px 0 0; padding: 20px 24px;">
                             <h3 class="m-0 font-weight-bold"><i class="mdi mdi-package-variant-closed text-primary"></i> รายการสินค้าทั้งหมด</h3>
                             <div>
+                                <a href="print_stock_report.php" target="_blank" class="btn btn-outline-success btn-pill mr-2">
+                                    <i class="mdi mdi-file-chart-outline"></i> รายงานสต๊อกคงเหลือ
+                                </a>
                                 <a href="print_all_barcodes.php" target="_blank" class="btn btn-outline-info btn-pill mr-2">
                                     <i class="mdi mdi-printer"></i> ปริ้นบาร์โค้ดทั้งหมด
                                 </a>

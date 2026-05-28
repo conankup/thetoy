@@ -49,6 +49,7 @@ try {
             $average_cost = (($old_total_qty * $old_cost) + ($qty * $new_cost)) / $total_qty;
         }
 
+        $upd = $conn->prepare("UPDATE products SET storage_qty = :sqty, cost = :cost WHERE id = :id");
         $upd->execute([':sqty' => $new_storage, ':cost' => $average_cost, ':id' => $prod['id']]);
 
         $newData = ['storage_qty' => $new_storage, 'cost' => $average_cost];
@@ -90,7 +91,29 @@ try {
         $new_storage = $prod['storage_qty'] - $qty;
         $new_front = $prod['front_qty'] + $qty;
 
+        $upd = $conn->prepare("UPDATE products SET storage_qty = :sqty, front_qty = :fqty WHERE id = :id");
         $upd->execute([':sqty' => $new_storage, ':fqty' => $new_front, ':id' => $prod['id']]);
+
+        // อัปเดต added_qty ในใบปิดยอด (daily_stock_counts) หากมีบิล draft อยู่ในปัจจุบัน
+        $stmtRecon = $conn->prepare("SELECT id FROM daily_reconciliations WHERE status = 'draft' ORDER BY reconciliation_date DESC LIMIT 1");
+        $stmtRecon->execute();
+        $recon = $stmtRecon->fetch(PDO::FETCH_ASSOC);
+        if ($recon) {
+            $recon_id = $recon['id'];
+            $stmtCount = $conn->prepare("SELECT id, added_qty FROM daily_stock_counts WHERE daily_reconciliation_id = :recon_id AND product_id = :product_id");
+            $stmtCount->execute([':recon_id' => $recon_id, ':product_id' => $prod['id']]);
+            $countRow = $stmtCount->fetch(PDO::FETCH_ASSOC);
+            if ($countRow) {
+                $new_added = $countRow['added_qty'] + $qty;
+                $updCount = $conn->prepare("UPDATE daily_stock_counts SET added_qty = :added WHERE id = :id");
+                $updCount->execute([':added' => $new_added, ':id' => $countRow['id']]);
+            } else {
+                $stmtInsert = $conn->prepare("INSERT INTO daily_stock_counts 
+                    (daily_reconciliation_id, product_id, opening_qty, added_qty, closing_qty, calculated_sold_qty, expected_revenue) 
+                    VALUES (:recon_id, :product_id, 0, :qty, 0, 0, 0)");
+                $stmtInsert->execute([':recon_id' => $recon_id, ':product_id' => $prod['id'], ':qty' => $qty]);
+            }
+        }
 
         $newData = ['storage_qty' => $new_storage, 'front_qty' => $new_front];
         writeAuditLog($conn, 'UPDATE', 'products', $prod['id'], "ย้ายสินค้าไปหน้าร้าน: {$prod['name']} จำนวน $qty ชิ้น", $prod, $newData);
@@ -125,7 +148,24 @@ try {
         $new_storage = $prod['storage_qty'] + $qty;
         $new_front = $prod['front_qty'] - $qty;
 
+        $upd = $conn->prepare("UPDATE products SET storage_qty = :sqty, front_qty = :fqty WHERE id = :id");
         $upd->execute([':sqty' => $new_storage, ':fqty' => $new_front, ':id' => $prod['id']]);
+
+        // อัปเดต added_qty ในใบปิดยอด (daily_stock_counts) หากมีบิล draft อยู่ในปัจจุบัน
+        $stmtRecon = $conn->prepare("SELECT id FROM daily_reconciliations WHERE status = 'draft' ORDER BY reconciliation_date DESC LIMIT 1");
+        $stmtRecon->execute();
+        $recon = $stmtRecon->fetch(PDO::FETCH_ASSOC);
+        if ($recon) {
+            $recon_id = $recon['id'];
+            $stmtCount = $conn->prepare("SELECT id, added_qty FROM daily_stock_counts WHERE daily_reconciliation_id = :recon_id AND product_id = :product_id");
+            $stmtCount->execute([':recon_id' => $recon_id, ':product_id' => $prod['id']]);
+            $countRow = $stmtCount->fetch(PDO::FETCH_ASSOC);
+            if ($countRow) {
+                $new_added = $countRow['added_qty'] - $qty;
+                $updCount = $conn->prepare("UPDATE daily_stock_counts SET added_qty = :added WHERE id = :id");
+                $updCount->execute([':added' => $new_added, ':id' => $countRow['id']]);
+            }
+        }
 
         $newData = ['storage_qty' => $new_storage, 'front_qty' => $new_front];
         writeAuditLog($conn, 'UPDATE', 'products', $prod['id'], "ดึงสินค้ากลับเข้าตู้: {$prod['name']} จำนวน $qty ชิ้น", $prod, $newData);
@@ -159,6 +199,7 @@ try {
         // ปรับลดยอดตู้ (หักออกเพราะรับเข้าผิด)
         $new_storage = $prod['storage_qty'] - $qty;
 
+        $upd = $conn->prepare("UPDATE products SET storage_qty = :sqty WHERE id = :id");
         $upd->execute([':sqty' => $new_storage, ':id' => $prod['id']]);
 
         $newData = ['storage_qty' => $new_storage];

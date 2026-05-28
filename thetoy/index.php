@@ -335,9 +335,10 @@ $is_admin_manager = in_array($_SESSION['role_id'], [1, 2]);
                 success: function(res) {
                     if (typeof NProgress !== 'undefined') NProgress.done();
                     if (res.status === 'success') {
+                        var isAdmin = (res.user_role == 1 || res.user_role == 2);
                         renderSummary(res.summary);
                         renderOwnerSales(res.owner_sales, res.user_role);
-                        renderTopProducts(res.top_products);
+                        renderTopProducts(res.top_products, isAdmin);
                         renderChart(res.chart_data, mode);
                         renderLowStock(res.low_stock);
                         if (typeof renderDiffDetails === 'function') {
@@ -474,7 +475,7 @@ $is_admin_manager = in_array($_SESSION['role_id'], [1, 2]);
         }
 
         // ===== Render Top Products =====
-        function renderTopProducts(products) {
+        function renderTopProducts(products, isAdmin) {
             var body = '';
             if (products.length === 0) {
                 body = '<tr><td colspan="' + (isAdmin ? 4 : 3) + '" class="text-center text-muted py-4">ไม่มีข้อมูล</td></tr>';
@@ -602,18 +603,32 @@ $is_admin_manager = in_array($_SESSION['role_id'], [1, 2]);
             var body = '';
 
             if (items.length === 0) {
-                body = '<tr><td colspan="3" class="text-center text-muted py-4">✅ สินค้าทุกรายการมีเพียงพอ</td></tr>';
+                body = '<tr><td colspan="3" class="text-center py-4"><span style="font-size:1.8rem;">✅</span><br><span class="text-muted">สินค้าทุกรายการมีเพียงพอ</span></td></tr>';
                 $('#lowStockPagination').hide();
             } else {
                 pageItems.forEach(function(item) {
-                    var badgeClass = parseInt(item.total_qty) <= 0 ? 'low-stock-0' : 'low-stock-low';
-                    var badgeText = parseInt(item.total_qty) <= 0 ? 'หมด!' : item.total_qty + ' ชิ้น';
-                    body += '<tr>';
+                    var qty = parseInt(item.total_qty);
+                    var badgeClass, badgeText, rowClass;
+                    if (qty <= 0) {
+                        badgeClass = 'low-stock-0';
+                        badgeText  = '❌ หมดแล้ว!';
+                        rowClass   = 'low-stock-row-0';
+                    } else if (qty <= 2) {
+                        badgeClass = 'low-stock-critical';
+                        badgeText  = '⚠️ ' + qty + ' ชิ้น';
+                        rowClass   = 'low-stock-row-critical';
+                    } else {
+                        badgeClass = 'low-stock-low';
+                        badgeText  = '⚡ ' + qty + ' ชิ้น';
+                        rowClass   = '';
+                    }
+                    body += '<tr class="' + rowClass + '">';
                     body += '<td><strong>' + escapeHtml(item.name) + '</strong></td>';
                     body += '<td class="text-center"><span class="low-stock-badge ' + badgeClass + '">' + badgeText + '</span></td>';
                     body += '<td>' + escapeHtml(item.owner_name) + '</td>';
                     body += '</tr>';
                 });
+
 
                 // Pagination
                 if (totalPages > 1) {

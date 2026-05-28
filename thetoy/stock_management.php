@@ -2,6 +2,8 @@
 require_once '../auth_check.php';
 require_once '../connectDB.php';
 checkRole([1, 2, 3]);
+$current_role = intval($_SESSION['role_id']);
+$can_manage_stock = ($current_role !== 2); // role 2 = ดูสต๊อกได้อย่างเดียว
 
 try {
     $products = [];
@@ -37,6 +39,7 @@ try {
                         </div>
                         <div class="card-body">
                             <ul class="nav nav-pills mb-4" id="stockTab" role="tablist">
+                                <?php if ($can_manage_stock): ?>
                                 <li class="nav-item mr-2">
                                     <a class="nav-link active btn-pill" id="receive-tab" data-toggle="tab" href="#receive" role="tab" aria-selected="true" style="font-weight: 600;">
                                         <i class="mdi mdi-truck-delivery"></i> 1. รับของเข้าตู้ (Receive)
@@ -57,8 +60,9 @@ try {
                                         <i class="mdi mdi-minus-circle-outline"></i> 4. ปรับลดยอดตู้ (Adjust)
                                     </a>
                                 </li>
-                                <li class="nav-item ml-auto">
-                                    <a class="nav-link btn-pill bg-light text-dark" id="overview-tab" data-toggle="tab" href="#overview" role="tab" aria-selected="false" style="font-weight: 600;">
+                                <?php endif; ?>
+                                <li class="nav-item <?= $can_manage_stock ? 'ml-auto' : '' ?>">
+                                    <a class="nav-link btn-pill <?= $can_manage_stock ? 'bg-light text-dark' : 'active' ?>" id="overview-tab" data-toggle="tab" href="#overview" role="tab" aria-selected="<?= $can_manage_stock ? 'false' : 'true' ?>" style="font-weight: 600;">
                                         <i class="mdi mdi-format-list-bulleted"></i> ดูสต๊อกทั้งหมด
                                     </a>
                                 </li>
@@ -66,6 +70,7 @@ try {
 
                             <div class="tab-content mt-4" id="stockTabContent">
                                 
+                                <?php if ($can_manage_stock): ?>
                                 <!-- TAB 1: RECEIVE TO STORAGE -->
                                 <div class="tab-pane fade show active" id="receive" role="tabpanel">
                                     <div class="row justify-content-center">
@@ -213,8 +218,10 @@ try {
                                     </div>
                                 </div>
 
-                                <!-- TAB 3: OVERVIEW -->
-                                <div class="tab-pane fade" id="overview" role="tabpanel">
+                                <?php endif; ?>
+
+                                <!-- TAB OVERVIEW -->
+                                <div class="tab-pane fade <?= !$can_manage_stock ? 'show active' : '' ?>" id="overview" role="tabpanel">
                                     <div class="table-responsive mt-3">
                                         <table id="stockTable" class="table table-hover table-premium" style="width:100%">
                                             <thead class="bg-light">

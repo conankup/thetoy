@@ -1,0 +1,14 @@
+# Database backups
+*.sql
+backups/*.sql
+
+# Uploads
+uploads/*
+!uploads/.gitkeep
+
+# Scratch files
+scratch/
+
+# Local maintenance scripts
+fix_attendance_table.php
+

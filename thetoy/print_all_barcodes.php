@@ -44,9 +44,9 @@ try {
         }
         .grid-container {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            grid-template-columns: repeat(2, 1fr);
             gap: 15px;
-            max-width: 1000px;
+            max-width: 800px;
             margin: 0 auto;
         }
         .barcode-card {
@@ -94,13 +94,13 @@ try {
                 display: none;
             }
             .grid-container {
-                grid-template-columns: repeat(3, 1fr);
-                gap: 15px;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
                 max-width: 100%;
             }
             .barcode-card {
                 border: 1px solid #ddd;
-                padding: 10px; /* ลด padding ลงเล็กน้อยเพื่อให้พิมพ์ได้สวยขึ้น */
+                padding: 10px;
             }
             .barcode-card h4 {
                 font-size: 18px;
@@ -117,7 +117,7 @@ try {
         <button class="btn-print" onclick="window.print()">
             🖨️ กดเพื่อปริ้นบาร์โค้ดทั้งหมด (Print)
         </button>
-        <p style="color: #666; margin-top: 10px;">เคล็ดลับ: ตั้งค่าหน้ากระดาษเป็น A4 แนวตั้ง (Portrait) และเอา Headers and footers ออก</p>
+        <p style="color: #666; margin-top: 10px;">เคล็ดลับ: ตั้งค่าหน้ากระดาษเป็น A4 แนวตั้ง (Portrait) และเอา Headers and footers ออก (จัดแบบ 2 คอลัมน์)</p>
     </div>
 
     <div class="grid-container">
@@ -136,13 +136,13 @@ try {
             <?php foreach($products as $index => $p): ?>
                 JsBarcode("#barcode_<?= $index ?>", "<?= htmlspecialchars($p['barcode']) ?>", {
                     format: "CODE128",
-                    width: 2,        // กำหนดความหนาของเส้นให้คงที่ (สำคัญ)
-                    height: 60,       // ปรับความสูงให้สมดุล
+                    width: 2.5,
+                    height: 70,
                     displayValue: true,
                     fontSize: 14,
-                    margin: 5,
+                    margin: 8,
                     background: "#ffffff",
-                    flat: true        // ช่วยให้เส้นบาร์โค้ดคมชัดขึ้น ไม่เบลอเวลาขยาย
+                    flat: true
                 });
             <?php endforeach; ?>
         });

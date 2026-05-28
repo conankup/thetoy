@@ -230,3 +230,62 @@ h1, h2, h3, h4, h5, h6 {
     color: #636e72;
     margin: 0 8px;
 }
+
+/* ===== Low Stock Badges (Modern UI) ===== */
+.low-stock-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 14px;
+    border-radius: 50px;
+    font-size: 0.88rem;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.low-stock-badge:hover {
+    transform: scale(1.05);
+}
+
+/* หมดสต๊อก (0 ชิ้น) - แดงชัด + pulse */
+.low-stock-0 {
+    background: linear-gradient(135deg, #ff4757, #ff6b81);
+    color: #fff;
+    box-shadow: 0 3px 10px rgba(255, 71, 87, 0.45);
+    animation: pulse-red 1.8s infinite;
+}
+@keyframes pulse-red {
+    0%   { box-shadow: 0 0 0 0   rgba(255, 71, 87, 0.55); }
+    60%  { box-shadow: 0 0 0 8px rgba(255, 71, 87, 0); }
+    100% { box-shadow: 0 0 0 0   rgba(255, 71, 87, 0); }
+}
+
+/* เหลือน้อยมาก (1-2 ชิ้น) - ส้มเหลือง */
+.low-stock-critical {
+    background: linear-gradient(135deg, #ff9f43, #ffc107);
+    color: #fff;
+    box-shadow: 0 3px 10px rgba(255, 159, 67, 0.4);
+    animation: pulse-orange 2.2s infinite;
+}
+@keyframes pulse-orange {
+    0%   { box-shadow: 0 0 0 0   rgba(255, 159, 67, 0.5); }
+    60%  { box-shadow: 0 0 0 7px rgba(255, 159, 67, 0); }
+    100% { box-shadow: 0 0 0 0   rgba(255, 159, 67, 0); }
+}
+
+/* เหลือน้อย (3 ชิ้น) - เหลืองอ่อน */
+.low-stock-low {
+    background: linear-gradient(135deg, #ffeaa7, #fdcb6e);
+    color: #856404;
+    box-shadow: 0 3px 8px rgba(253, 203, 110, 0.35);
+}
+
+/* Low Stock Table Row Highlight */
+.low-stock-row-0 {
+    background-color: rgba(255, 71, 87, 0.05) !important;
+}
+.low-stock-row-critical {
+    background-color: rgba(255, 159, 67, 0.05) !important;
+}
+
