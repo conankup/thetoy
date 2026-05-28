@@ -16,6 +16,10 @@ $today = date('Y-m-d');
 
 try {
     if ($action == 'create_today') {
+        if (isMonthSettled($conn, $today)) {
+            echo json_encode(['status' => 'error', 'message' => 'ไม่สามารถทำรายการได้ เนื่องจากรอบเดือนนี้ถูกปิดยอดบัญชีรายเดือนเรียบร้อยแล้ว']);
+            exit;
+        }
         
         // เช็คว่ามี draft หรือ completed ของวันนี้หรือยัง
         $stmtCheck = $conn->prepare("SELECT id FROM daily_reconciliations WHERE reconciliation_date = :date");
@@ -93,6 +97,11 @@ try {
         $stmtCheck = $conn->prepare("SELECT * FROM daily_reconciliations WHERE id = :id");
         $stmtCheck->execute([':id' => $id]);
         $oldData = $stmtCheck->fetch(PDO::FETCH_ASSOC);
+
+        if ($oldData && isMonthSettled($conn, $oldData['reconciliation_date'])) {
+             echo json_encode(['status' => 'error', 'message' => 'ไม่สามารถลบรายการได้ เนื่องจากรอบเดือนนี้ถูกปิดยอดบัญชีรายเดือนเรียบร้อยแล้ว']);
+             exit;
+        }
 
         if ($oldData && $oldData['status'] == 'completed') {
              echo json_encode(['status' => 'error', 'message' => 'ไม่สามารถลบรายการที่ปิดยอดไปแล้วได้!']);

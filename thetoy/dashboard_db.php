@@ -37,6 +37,11 @@ try {
             exit;
         }
 
+        if (isMonthSettled($conn, $withdrawal_date)) {
+            echo json_encode(['status' => 'error', 'message' => 'ไม่สามารถบันทึกรายการได้ เนื่องจากเดือนนี้ถูกปิดยอดบัญชีรายเดือนเรียบร้อยแล้ว']);
+            exit;
+        }
+
         $stmt = $conn->prepare("INSERT INTO owner_withdrawals (owner_id, amount, withdrawal_date, note, created_by, created_at) VALUES (?, ?, ?, ?, ?, NOW())");
         $stmt->execute([$owner_id, $amount, $withdrawal_date, $note, $_SESSION['user_id']]);
         
@@ -56,6 +61,16 @@ try {
         $stmtOld = $conn->prepare("SELECT w.*, o.name as owner_name FROM owner_withdrawals w JOIN item_owners o ON w.owner_id = o.id WHERE w.id = ?");
         $stmtOld->execute([$id]);
         $oldData = $stmtOld->fetch(PDO::FETCH_ASSOC);
+
+        if (!$oldData) {
+            echo json_encode(['status' => 'error', 'message' => 'ไม่พบรายการเบิกเงินนี้']);
+            exit;
+        }
+
+        if (isMonthSettled($conn, $oldData['withdrawal_date'])) {
+            echo json_encode(['status' => 'error', 'message' => 'ไม่สามารถยกเลิกรายการได้ เนื่องจากเดือนนี้ถูกปิดยอดบัญชีรายเดือนเรียบร้อยแล้ว']);
+            exit;
+        }
 
         $stmt = $conn->prepare("UPDATE owner_withdrawals SET status = 'void', updated_by = ?, updated_at = NOW() WHERE id = ?");
         $stmt->execute([$_SESSION['user_id'], $id]);

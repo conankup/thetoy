@@ -45,6 +45,14 @@ $current_page = basename($_SERVER['PHP_SELF']);
                     </li>
                 <?php endif; ?>
                 <?php if (isset($_SESSION['role_id']) && $_SESSION['role_id'] == 1): ?>
+                    <li class="nav-item <?php echo ($current_page == 'settlements.php') ? 'active' : ''; ?>">
+                        <a class="sidenav-item-link" href="settlements.php">
+                            <i class="mdi mdi-calculator-variant"></i>
+                            <span class="nav-text">ปิดยอดบัญชีรายเดือน</span>
+                        </a>
+                    </li>
+                <?php endif; ?>
+                <?php if (isset($_SESSION['role_id']) && $_SESSION['role_id'] == 1): ?>
                     <li class="nav-item <?php echo ($current_page == 'products.php') ? 'active' : ''; ?>">
                         <a class="sidenav-item-link" href="products.php">
                             <i class="mdi mdi-barcode-scan"></i>

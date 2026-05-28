@@ -13,6 +13,32 @@ if (!isset($_SESSION['user_id'])) {
 $action = $_POST['action'] ?? '';
 $user_id = $_SESSION['user_id'];
 
+// ตรวจสอบการปิดยอดบัญชีรายเดือนสำหรับ Action ที่แก้ไขข้อมูล (Write Actions)
+if (in_array($action, ['update_qty', 'no_sales_today', 'add_expense', 'del_expense', 'complete_recon'])) {
+    $recon_date = null;
+    if (in_array($action, ['no_sales_today', 'add_expense', 'complete_recon'])) {
+        $recon_id = intval($_POST['recon_id'] ?? 0);
+        $stmtDate = $conn->prepare("SELECT reconciliation_date FROM daily_reconciliations WHERE id = ?");
+        $stmtDate->execute([$recon_id]);
+        $recon_date = $stmtDate->fetchColumn();
+    } elseif ($action == 'update_qty') {
+        $id = intval($_POST['id'] ?? 0);
+        $stmtDate = $conn->prepare("SELECT dr.reconciliation_date FROM daily_stock_counts c JOIN daily_reconciliations dr ON c.daily_reconciliation_id = dr.id WHERE c.id = ?");
+        $stmtDate->execute([$id]);
+        $recon_date = $stmtDate->fetchColumn();
+    } elseif ($action == 'del_expense') {
+        $id = intval($_POST['id'] ?? 0);
+        $stmtDate = $conn->prepare("SELECT dr.reconciliation_date FROM daily_expenses de JOIN daily_reconciliations dr ON de.daily_reconciliation_id = dr.id WHERE de.id = ?");
+        $stmtDate->execute([$id]);
+        $recon_date = $stmtDate->fetchColumn();
+    }
+    
+    if ($recon_date && isMonthSettled($conn, $recon_date)) {
+        echo json_encode(['status' => 'error', 'message' => 'ไม่สามารถทำรายการได้ เนื่องจากรอบเดือนนี้ถูกปิดยอดบัญชีรายเดือนเรียบร้อยแล้ว']);
+        exit;
+    }
+}
+
 try {
     if ($action == 'update_qty') {
         $id = intval($_POST['id']);

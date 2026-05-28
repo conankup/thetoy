@@ -53,4 +53,17 @@ function getAuditDiff($old, $new) {
     }
     return $diff;
 }
+
+/**
+ * Check if the month of the given date string is settled
+ */
+function isMonthSettled($conn, $dateString) {
+    if (empty($dateString)) {
+        return false;
+    }
+    $month = date('Y-m', strtotime($dateString));
+    $stmt = $conn->prepare("SELECT COUNT(*) FROM owner_monthly_settlements WHERE settlement_month = ?");
+    $stmt->execute([$month]);
+    return $stmt->fetchColumn() > 0;
+}
 ?>
