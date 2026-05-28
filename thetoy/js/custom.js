@@ -389,32 +389,12 @@ $(document).ready(function () {
   }
 
   /*======== 13. PROGRESS BAR ========*/
-  NProgress.done();
+  if (typeof NProgress !== 'undefined') {
+    NProgress.done();
+  }
 
   /*======== 14. DATA TABLE ========*/
-  var productsTable = $("#productsTable");
-  if (productsTable.length != 0) {
-    productsTable.DataTable({
-      info: false,
-      lengthChange: false,
-      lengthMenu: [
-        [5, 10, 15, -1],
-        [5, 10, 15, "All"],
-      ],
-      scrollX: true,
-      order: [[2, "asc"]],
-      columnDefs: [
-        {
-          orderable: false,
-          targets: [, 0, 6, -1],
-        },
-      ],
-      language: {
-        search: "_INPUT_",
-        searchPlaceholder: "Search...",
-      },
-    });
-  }
+  // Generic productsTable initialization removed to avoid conflict with products.php custom initialization
 
   var productSale = $("#product-sale");
   if (productSale.length != 0) {

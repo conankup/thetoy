@@ -334,12 +334,14 @@ $(document).ready(function () {
     };
   }
 
-  hotkeys("/", function (event, handler) {
-    switch (handler.key) {
-      case "/":
-        event.preventDefault();
-        searchInput.focus();
-        break;
-    }
-  });
+  if (typeof hotkeys !== 'undefined') {
+    hotkeys("/", function (event, handler) {
+      switch (handler.key) {
+        case "/":
+          event.preventDefault();
+          searchInput.focus();
+          break;
+      }
+    });
+  }
 });

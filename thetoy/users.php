@@ -62,10 +62,12 @@ checkRole([1]); // อนุญาต Admin
 
 <body class="navbar-fixed sidebar-fixed" id="body">
     <script>
-        NProgress.configure({
-            showSpinner: false
-        });
-        NProgress.start();
+        if (typeof NProgress !== 'undefined') {
+            NProgress.configure({
+                showSpinner: false
+            });
+            NProgress.start();
+        }
     </script>
     <div id="toaster"></div>
     <!-- ====================================
