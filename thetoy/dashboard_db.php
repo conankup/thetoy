@@ -37,8 +37,8 @@ try {
             exit;
         }
 
-        $stmt = $conn->prepare("INSERT INTO owner_withdrawals (owner_id, amount, withdrawal_date, note) VALUES (?, ?, ?, ?)");
-        $stmt->execute([$owner_id, $amount, $withdrawal_date, $note]);
+        $stmt = $conn->prepare("INSERT INTO owner_withdrawals (owner_id, amount, withdrawal_date, note, created_by, created_at) VALUES (?, ?, ?, ?, ?, NOW())");
+        $stmt->execute([$owner_id, $amount, $withdrawal_date, $note, $_SESSION['user_id']]);
         
         $new_id = $conn->lastInsertId();
         // Fetch owner name for better log
@@ -57,8 +57,8 @@ try {
         $stmtOld->execute([$id]);
         $oldData = $stmtOld->fetch(PDO::FETCH_ASSOC);
 
-        $stmt = $conn->prepare("UPDATE owner_withdrawals SET status = 'void' WHERE id = ?");
-        $stmt->execute([$id]);
+        $stmt = $conn->prepare("UPDATE owner_withdrawals SET status = 'void', updated_by = ?, updated_at = NOW() WHERE id = ?");
+        $stmt->execute([$_SESSION['user_id'], $id]);
         
         writeAuditLog($conn, 'VOID', 'owner_withdrawals', $id, "ยกเลิกการเบิกเงิน: " . ($oldData['owner_name'] ?? 'ID '.$id) . " จำนวน " . ($oldData['amount'] ?? '0'), $oldData, ['status' => 'void']);
         
