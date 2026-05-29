@@ -11,10 +11,10 @@
   <!-- <script src="plugins/daterangepicker/daterangepicker.js"></script> -->
   <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
   <script src="plugins/toaster/toastr.min.js"></script>
-  <script src="js/mono.js"></script>
-  <script src="js/chart.js"></script>
-  <script src="js/map.js"></script>
-  <script src="js/custom.js"></script>
+  <script src="js/mono.js?v=1.0.2"></script>
+  <script src="js/chart.js?v=1.0.2"></script>
+  <script src="js/map.js?v=1.0.2"></script>
+  <script src="js/custom.js?v=1.0.2"></script>
   <!--  -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>

@@ -330,6 +330,10 @@ try {
         $(document).ready(function() {
 
             // DataTables
+            if ($.fn.DataTable.isDataTable('#productsTable')) {
+                $('#productsTable').DataTable().destroy();
+            }
+
             var table = $('#productsTable').DataTable({
                 "scrollX": true,
                 "ordering": false, // ปิดการเรียงลำดับที่หน้าจอ เพื่อให้เรียงตาม SQL DESC
