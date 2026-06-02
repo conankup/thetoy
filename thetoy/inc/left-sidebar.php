@@ -36,7 +36,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
                         </a>
                     </li>
                 <?php endif; ?>
-                <?php if (isset($_SESSION['role_id']) && $_SESSION['role_id'] == 1): ?>
+                <?php if (isset($_SESSION['role_id']) && in_array($_SESSION['role_id'], [1, 2])): ?>
                     <li class="nav-item <?php echo ($current_page == 'withdrawals.php') ? 'active' : ''; ?>">
                         <a class="sidenav-item-link" href="withdrawals.php">
                             <i class="mdi mdi-cash-refund"></i>

@@ -219,6 +219,69 @@ try {
             echo json_encode(['status' => 'error', 'message' => 'Not found']);
         }
 
+    } elseif ($action == 'get_stock_history') {
+        $date = trim($_POST['date'] ?? date('Y-m-d'));
+        if (empty($date)) {
+            $date = date('Y-m-d');
+        }
+
+        $stmt = $conn->prepare("
+            SELECT created_at, user_name, details 
+            FROM audit_logs 
+            WHERE table_name = 'products' 
+              AND (details LIKE 'รับสินค้าเข้าตู้:%' 
+                   OR details LIKE 'ย้ายสินค้าไปหน้าร้าน:%' 
+                   OR details LIKE 'ดึงสินค้ากลับเข้าตู้:%' 
+                   OR details LIKE 'ปรับลดยอดตู้%')
+              AND DATE(created_at) = :date
+            ORDER BY created_at DESC
+        ");
+        $stmt->execute([':date' => $date]);
+        $logs = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $parsed_logs = [];
+        foreach ($logs as $log) {
+            $details = $log['details'];
+            $type = 'unknown';
+            $prod_name = '';
+            $qty = 0;
+            $extra = '';
+
+            if (preg_match('/^รับสินค้าเข้าตู้:\s*(.+?)\s+จำนวน\s+(\d+)\s+ชิ้น\s*(.*)$/u', $details, $matches)) {
+                $type = 'receive';
+                $prod_name = $matches[1];
+                $qty = intval($matches[2]);
+                $extra = trim($matches[3]);
+            } elseif (preg_match('/^ย้ายสินค้าไปหน้าร้าน:\s*(.+?)\s+จำนวน\s+(\d+)\s+ชิ้น$/u', $details, $matches)) {
+                $type = 'transfer';
+                $prod_name = $matches[1];
+                $qty = intval($matches[2]);
+            } elseif (preg_match('/^ดึงสินค้ากลับเข้าตู้:\s*(.+?)\s+จำนวน\s+(\d+)\s+ชิ้น$/u', $details, $matches)) {
+                $type = 'return';
+                $prod_name = $matches[1];
+                $qty = intval($matches[2]);
+            } elseif (preg_match('/^ปรับลดยอดตู้\s*\(หักออก\):\s*(.+?)\s+จำนวน\s+(\d+)\s+ชิ้น$/u', $details, $matches)) {
+                $type = 'reduce';
+                $prod_name = $matches[1];
+                $qty = intval($matches[2]);
+            } else {
+                $prod_name = $details;
+            }
+
+            $parsed_logs[] = [
+                'created_at' => $log['created_at'],
+                'user_name' => $log['user_name'],
+                'type' => $type,
+                'product_name' => $prod_name,
+                'qty' => $qty,
+                'extra' => $extra,
+                'raw_details' => $details
+            ];
+        }
+
+        echo json_encode(['status' => 'success', 'data' => $parsed_logs]);
+        exit;
+
     } else {
         echo json_encode(['status' => 'error', 'message' => 'Action not found']);
     }

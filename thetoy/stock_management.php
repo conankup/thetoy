@@ -61,6 +61,11 @@ try {
                                     </a>
                                 </li>
                                 <?php endif; ?>
+                                <li class="nav-item mr-2">
+                                    <a class="nav-link btn-pill" id="history-tab" data-toggle="tab" href="#history" role="tab" aria-selected="false" style="font-weight: 600;">
+                                        <i class="mdi mdi-history"></i> 5. ประวัติคลังสินค้า (History)
+                                    </a>
+                                </li>
                                 <li class="nav-item <?= $can_manage_stock ? 'ml-auto' : '' ?>">
                                     <a class="nav-link btn-pill <?= $can_manage_stock ? 'bg-light text-dark' : 'active' ?>" id="overview-tab" data-toggle="tab" href="#overview" role="tab" aria-selected="<?= $can_manage_stock ? 'false' : 'true' ?>" style="font-weight: 600;">
                                         <i class="mdi mdi-format-list-bulleted"></i> ดูสต๊อกทั้งหมด
@@ -80,6 +85,17 @@ try {
                                                     <h4 class="mb-4 text-center text-primary">สแกนรับสินค้าเข้า "ตู้เก็บของ"</h4>
                                                     <form id="formReceive">
                                                         <input type="hidden" name="action" value="receive_storage">
+                                                        <div class="form-group row">
+                                                            <label class="col-sm-3 col-form-label font-weight-bold text-primary">ค้นหาด้วยชื่อสินค้า</label>
+                                                            <div class="col-sm-9">
+                                                                <select class="form-control select2-product" id="rec_select_product" style="width: 100%;">
+                                                                    <option value="">-- ค้นหาและเลือกสินค้า --</option>
+                                                                    <?php foreach ($products as $p): ?>
+                                                                        <option value="<?= htmlspecialchars($p['barcode']) ?>"><?= htmlspecialchars($p['name']) ?> (<?= htmlspecialchars($p['barcode']) ?>)</option>
+                                                                    <?php endforeach; ?>
+                                                                </select>
+                                                            </div>
+                                                        </div>
                                                         <div class="form-group row">
                                                             <label class="col-sm-3 col-form-label">รหัสบาร์โค้ด</label>
                                                             <div class="col-sm-9">
@@ -125,6 +141,17 @@ try {
                                                     <form id="formTransfer">
                                                         <input type="hidden" name="action" value="transfer_front">
                                                         <div class="form-group row">
+                                                            <label class="col-sm-3 col-form-label font-weight-bold text-success">ค้นหาด้วยชื่อสินค้า</label>
+                                                            <div class="col-sm-9">
+                                                                <select class="form-control select2-product" id="trans_select_product" style="width: 100%;">
+                                                                    <option value="">-- ค้นหาและเลือกสินค้า --</option>
+                                                                    <?php foreach ($products as $p): ?>
+                                                                        <option value="<?= htmlspecialchars($p['barcode']) ?>"><?= htmlspecialchars($p['name']) ?> (<?= htmlspecialchars($p['barcode']) ?>)</option>
+                                                                    <?php endforeach; ?>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group row">
                                                             <label class="col-sm-3 col-form-label">รหัสบาร์โค้ด</label>
                                                             <div class="col-sm-9">
                                                                 <div class="input-group">
@@ -161,6 +188,17 @@ try {
                                                     <h4 class="mb-4 text-center text-warning">สแกนดึงของกลับเข้า "ตู้เก็บของ" (ย้ายไปหน้าร้านเกิน)</h4>
                                                     <form id="formReturn">
                                                         <input type="hidden" name="action" value="return_storage">
+                                                        <div class="form-group row">
+                                                            <label class="col-sm-3 col-form-label font-weight-bold text-warning">ค้นหาด้วยชื่อสินค้า</label>
+                                                            <div class="col-sm-9">
+                                                                <select class="form-control select2-product" id="ret_select_product" style="width: 100%;">
+                                                                    <option value="">-- ค้นหาและเลือกสินค้า --</option>
+                                                                    <?php foreach ($products as $p): ?>
+                                                                        <option value="<?= htmlspecialchars($p['barcode']) ?>"><?= htmlspecialchars($p['name']) ?> (<?= htmlspecialchars($p['barcode']) ?>)</option>
+                                                                    <?php endforeach; ?>
+                                                                </select>
+                                                            </div>
+                                                        </div>
                                                         <div class="form-group row">
                                                             <label class="col-sm-3 col-form-label">รหัสบาร์โค้ด</label>
                                                             <div class="col-sm-9">
@@ -199,6 +237,17 @@ try {
                                                     <form id="formReduce">
                                                         <input type="hidden" name="action" value="reduce_storage">
                                                         <div class="form-group row">
+                                                            <label class="col-sm-3 col-form-label font-weight-bold text-danger">ค้นหาด้วยชื่อสินค้า</label>
+                                                            <div class="col-sm-9">
+                                                                <select class="form-control select2-product" id="red_select_product" style="width: 100%;">
+                                                                    <option value="">-- ค้นหาและเลือกสินค้า --</option>
+                                                                    <?php foreach ($products as $p): ?>
+                                                                        <option value="<?= htmlspecialchars($p['barcode']) ?>"><?= htmlspecialchars($p['name']) ?> (<?= htmlspecialchars($p['barcode']) ?>)</option>
+                                                                    <?php endforeach; ?>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group row">
                                                             <label class="col-sm-3 col-form-label">รหัสบาร์โค้ด</label>
                                                             <div class="col-sm-9">
                                                                 <div class="input-group">
@@ -225,6 +274,41 @@ try {
                                         </div>
                                     </div>
                                 </div>
+
+                                 <!-- TAB 5: STOCK HISTORY -->
+                                 <div class="tab-pane fade" id="history" role="tabpanel">
+                                     <div class="row justify-content-center mb-4">
+                                         <div class="col-md-6">
+                                             <div class="card bg-light border-0 shadow-sm" style="border-radius: 10px;">
+                                                 <div class="card-body py-3">
+                                                     <div class="form-group row mb-0 align-items-center">
+                                                         <label class="col-sm-4 col-form-label font-weight-bold text-dark"><i class="mdi mdi-calendar"></i> เลือกวันที่:</label>
+                                                         <div class="col-sm-8">
+                                                             <input type="date" class="form-control form-control-lg" id="history_date" value="<?= date('Y-m-d') ?>" style="border-radius: 8px; font-weight: 600;">
+                                                         </div>
+                                                     </div>
+                                                 </div>
+                                             </div>
+                                         </div>
+                                     </div>
+                                     <div class="table-responsive">
+                                         <table id="historyTable" class="table table-hover table-premium" style="width:100%">
+                                             <thead class="bg-light">
+                                                 <tr>
+                                                     <th style="width: 15%; font-weight: 700;">เวลา</th>
+                                                     <th style="width: 20%; font-weight: 700;">ผู้ดำเนินการ</th>
+                                                     <th style="width: 20%; font-weight: 700; text-align: center;">การทำรายการ</th>
+                                                     <th style="width: 25%; font-weight: 700;">สินค้า</th>
+                                                     <th class="text-center" style="width: 10%; font-weight: 700;">จำนวน (ชิ้น)</th>
+                                                     <th style="width: 10%; font-weight: 700;">รายละเอียดเพิ่มเติม</th>
+                                                 </tr>
+                                             </thead>
+                                             <tbody>
+                                                 <!-- Load via AJAX -->
+                                             </tbody>
+                                         </table>
+                                     </div>
+                                 </div>
 
                                 <?php endif; ?>
 
@@ -540,7 +624,7 @@ try {
                 fetchProductInfo($(this).val(), $(this).data('infodiv'));
             });
 
-            // จัดการ auto-focus เมื่อเปลี่ยน tab
+            // จัดการ auto-focus และโหลดประวัติเมื่อเปลี่ยน tab
             $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
                 if(e.target.id === 'receive-tab') {
                     $('#rec_barcode').focus();
@@ -550,7 +634,113 @@ try {
                     $('#ret_barcode').focus();
                 } else if(e.target.id === 'reduce-tab') {
                     $('#red_barcode').focus();
+                } else if(e.target.id === 'history-tab') {
+                    loadStockHistory();
                 }
+            });
+
+            // Initialize Select2 for product search dropdowns
+            $('.select2-product').select2({
+                placeholder: "-- ค้นหาและเลือกสินค้า --",
+                allowClear: true,
+                theme: 'bootstrap4'
+            });
+
+            // When a product is selected via Select2, update the barcode input and trigger change
+            $('.select2-product').on('select2:select', function (e) {
+                let barcode = e.params.data.id;
+                let targetInput = $(this).closest('form').find('.barcode-input');
+                targetInput.val(barcode).trigger('change');
+                
+                // Clear selection so the select2 box returns to default placeholder
+                $(this).val('').trigger('change.select2');
+            });
+
+            // --- ระบบประวัติคลังสินค้า (Stock History) ---
+            let historyTableObj = null;
+
+            function loadStockHistory() {
+                let selectedDate = $('#history_date').val();
+                const tbody = $('#historyTable tbody');
+                tbody.html('<tr><td colspan="6" class="text-center text-muted py-5"><span class="spinner-border spinner-border-sm text-primary"></span> กำลังดึงข้อมูลประวัติ...</td></tr>');
+
+                if (historyTableObj) {
+                    historyTableObj.destroy();
+                    historyTableObj = null;
+                }
+
+                $.ajax({
+                    url: 'stock_management_db.php',
+                    type: 'POST',
+                    data: { action: 'get_stock_history', date: selectedDate },
+                    dataType: 'json',
+                    success: function(res) {
+                        tbody.empty();
+                        if (res.status === 'success') {
+                            if (res.data.length === 0) {
+                                tbody.append('<tr><td colspan="6" class="text-center text-muted py-5">ไม่มีรายการเคลื่อนไหวสต๊อกในวันที่เลือก</td></tr>');
+                                return;
+                            }
+
+                            res.data.forEach(function(item) {
+                                let timeOnly = item.created_at.split(' ')[1] || item.created_at;
+                                let badgeClass = 'badge-secondary';
+                                let actionText = 'ไม่ทราบรายการ';
+
+                                if (item.type === 'receive') {
+                                    badgeClass = 'badge-primary';
+                                    actionText = '<i class="mdi mdi-truck-delivery"></i> รับสินค้าเข้าตู้';
+                                } else if (item.type === 'transfer') {
+                                    badgeClass = 'badge-success';
+                                    actionText = '<i class="mdi mdi-dolly"></i> เติมของหน้าร้าน';
+                                } else if (item.type === 'return') {
+                                    badgeClass = 'badge-warning text-dark';
+                                    actionText = '<i class="mdi mdi-keyboard-return"></i> ดึงของกลับตู้';
+                                } else if (item.type === 'reduce') {
+                                    badgeClass = 'badge-danger';
+                                    actionText = '<i class="mdi mdi-minus-circle-outline"></i> ปรับลดยอดตู้';
+                                }
+
+                                let badgeHtml = `<span class="badge ${badgeClass} py-1 px-3 btn-pill" style="font-size: 0.9em; min-width: 140px; display: inline-block;">${actionText}</span>`;
+                                let extraHtml = item.extra ? `<span class="text-muted small">${item.extra}</span>` : '-';
+
+                                let row = `
+                                    <tr>
+                                        <td style="vertical-align: middle;"><strong>${timeOnly}</strong></td>
+                                        <td style="vertical-align: middle;">${item.user_name}</td>
+                                        <td style="vertical-align: middle;" class="text-center">${badgeHtml}</td>
+                                        <td style="vertical-align: middle;"><strong>${item.product_name}</strong></td>
+                                        <td style="vertical-align: middle;" class="text-center font-weight-bold text-dark">${item.qty}</td>
+                                        <td style="vertical-align: middle;">${extraHtml}</td>
+                                    </tr>
+                                `;
+                                tbody.append(row);
+                            });
+
+                            historyTableObj = $('#historyTable').DataTable({
+                                "ordering": true,
+                                "order": [[0, "desc"]],
+                                "pageLength": 10,
+                                "language": {
+                                    "search": "ค้นหาในรายการ:",
+                                    "lengthMenu": "แสดง _MENU_ แถวต่อหน้า",
+                                    "info": "แสดง _START_ ถึง _END_ จากทั้งหมด _TOTAL_ รายการ",
+                                    "infoEmpty": "ไม่มีข้อมูลเพื่อแสดงผล"
+                                }
+                            });
+                        } else {
+                            toastr.error(res.message || 'เกิดข้อผิดพลาดในการโหลดประวัติ');
+                        }
+                    },
+                    error: function() {
+                        tbody.empty();
+                        tbody.append('<tr><td colspan="6" class="text-center text-danger py-5"><i class="mdi mdi-alert-circle-outline"></i> เชื่อมต่อระบบล้มเหลว</td></tr>');
+                    }
+                });
+            }
+
+            $('#history_date').on('change', function() {
+                loadStockHistory();
             });
 
             // ดูรูปภาพขนาดใหญ่ (ใช้ Event Delegation เพื่อให้กดรูปภาพที่โหลดมาจาก Ajax ได้ด้วย)
