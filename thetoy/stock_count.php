@@ -346,16 +346,12 @@ try {
                                                         <hr>
 
                                                         <!-- ยอดส่วนลดรวมเพิ่มเติม (เฉพาะ Admin/Manager) -->
-                                                        <?php if ($is_admin_manager): ?>
-                                                            <div class="form-group row">
-                                                                <label class="col-sm-5 col-form-label text-dark"><i class="mdi mdi-sale"></i> ยอดส่วนลดรวมเพิ่มเติม (฿)<br><small class="text-muted">(กรณีจำรายการสินค้าที่ลดไม่ได้)</small></label>
-                                                                <div class="col-sm-7">
-                                                                    <input type="number" step="1" class="form-control text-right calc-diff" id="total_discount_extra" value="<?= round($recon['total_discount_amount']) ?>" <?= $is_completed ? 'readonly' : '' ?> style="font-weight: bold; color: #6c757d;">
-                                                                </div>
+                                                        <div class="form-group row">
+                                                            <label class="col-sm-5 col-form-label text-dark"><i class="mdi mdi-sale"></i> ยอดส่วนลดรวมเพิ่มเติม (฿)<br><small class="text-muted">(กรณีจำรายการสินค้าที่ลดไม่ได้)</small></label>
+                                                            <div class="col-sm-7">
+                                                                <input type="number" step="1" class="form-control text-right calc-diff" id="total_discount_extra" value="<?= round($recon['total_discount_amount']) ?>" <?= $is_completed ? 'readonly' : '' ?> style="font-weight: bold; color: #6c757d;">
                                                             </div>
-                                                        <?php else: ?>
-                                                            <input type="hidden" id="total_discount_extra" value="0">
-                                                        <?php endif; ?>
+                                                        </div>
 
                                                         <?php if ($is_admin_manager): ?>
                                                             <div class="alert mt-4" id="diffAlert" style="display:none; font-size:1.2em; text-align:center;">
