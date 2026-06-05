@@ -18,13 +18,15 @@ try {
 
     $is_completed = ($recon['status'] == 'completed');
 
-    // 2. ดึงรายการสินค้าทั้งหมดในบิลนี้
+    // 2. ดึงรายการสินค้าทั้งหมดในบิลนี้ (เรียงตามเจ้าของ แล้วตามชื่อสินค้า)
     $stmtCounts = $conn->prepare("
-        SELECT c.*, p.barcode, p.name, p.price, p.cost, p.image 
+        SELECT c.*, p.barcode, p.name, p.price, p.cost, p.image,
+               COALESCE(o.name, 'ไม่ระบุเจ้าของ') AS owner_name
         FROM daily_stock_counts c
         JOIN products p ON c.product_id = p.id
+        LEFT JOIN item_owners o ON p.owner_id = o.id
         WHERE c.daily_reconciliation_id = :id
-        ORDER BY p.name ASC
+        ORDER BY o.name ASC, p.name ASC
     ");
     $stmtCounts->execute([':id' => $id]);
     $counts = $stmtCounts->fetchAll(PDO::FETCH_ASSOC);
@@ -151,22 +153,36 @@ try {
                                                 $total_sales_expected = 0;
                                                 $total_discount_from_items = 0;
                                                 $total_defect_amount = 0;
-                                                foreach ($counts as $c):
-                                                    // คำนวณจำนวนที่ขายไป
-                                                    $sold = ($c['opening_qty'] + $c['added_qty']) - $c['closing_qty'] - $c['lost_damaged_qty'] - $c['discounted_qty'];
 
-                                                    if ($is_completed) {
-                                                        $revenue = $c['expected_revenue'];
-                                                    } else {
-                                                        $revenue = $sold * $c['price'];
-                                                    }
-
-                                                    $total_sales_expected += $revenue;
-                                                    // คำนวณยอดส่วนลดจากรายการสินค้า (discounted_qty × ราคา)
+                                                // จัดกลุ่มตามเจ้าของ เหมือน print_stock_report.php
+                                                $grouped = [];
+                                                foreach ($counts as $c) {
+                                                    $ownerKey = $c['owner_name'] ?? 'ไม่ระบุเจ้าของ';
+                                                    $grouped[$ownerKey][] = $c;
+                                                    // คำนวณยอดรวมระหว่างวน
+                                                    $sold_tmp = ($c['opening_qty'] + $c['added_qty']) - $c['closing_qty'] - $c['lost_damaged_qty'] - $c['discounted_qty'];
+                                                    $revenue_tmp = $is_completed ? $c['expected_revenue'] : ($sold_tmp * $c['price']);
+                                                    $total_sales_expected += $revenue_tmp;
                                                     $total_discount_from_items += $c['discounted_qty'] * $c['price'];
-                                                    // คำนวณยอดของเสีย (lost_damaged_qty × ต้นทุน)
                                                     $total_defect_amount += $c['lost_damaged_qty'] * ($c['cost'] ?? 0);
+                                                }
+
+                                                foreach ($grouped as $ownerGroupName => $items):
+                                                    // แถว group header — นับจำนวนคอลัมน์จริง
+                                                    // base 8 cols: รหัส, สินค้า, ยอดยกมา, เติมเพิ่ม, นับได้, เสีย, ลดราคา, ขายไป
+                                                    // +1 ถ้า admin/manager (คอลัมน์ยอดขาย ฿)
+                                                    // +1 ถ้า not completed (คอลัมน์แก้ไข)
+                                                    $colSpan = 8 + ($is_admin_manager ? 1 : 0) + (!$is_completed ? 1 : 0);
                                                 ?>
+                                                    <tr style="background:#e8eaf6;">
+                                                        <td colspan="<?= $colSpan ?>" style="font-weight:700; color:#3730a3; padding: 6px 10px; border-top: 2px solid #c7d2fe; border-bottom: 1px solid #c7d2fe;">
+                                                            👤 <?= htmlspecialchars($ownerGroupName) ?> (<?= count($items) ?> รายการ)
+                                                        </td>
+                                                    </tr>
+                                                    <?php foreach ($items as $c):
+                                                        $sold = ($c['opening_qty'] + $c['added_qty']) - $c['closing_qty'] - $c['lost_damaged_qty'] - $c['discounted_qty'];
+                                                        $revenue = $is_completed ? $c['expected_revenue'] : ($sold * $c['price']);
+                                                    ?>
                                                     <tr>
                                                         <td><?= htmlspecialchars($c['barcode'] ?? '') ?></td>
                                                         <td><?= htmlspecialchars($c['name']) ?></td>
@@ -197,6 +213,7 @@ try {
                                                             </td>
                                                         <?php endif; ?>
                                                     </tr>
+                                                    <?php endforeach; ?>
                                                 <?php endforeach; ?>
                                             </tbody>
                                             <tfoot>
@@ -354,20 +371,27 @@ try {
                                                         </div>
 
                                                         <?php if ($is_admin_manager): ?>
+                                                            <!-- ส่วนต่างตัวเลข (เฉพาะ Admin/Manager) -->
                                                             <div class="alert mt-4" id="diffAlert" style="display:none; font-size:1.2em; text-align:center;">
                                                                 ส่วนต่าง: <strong id="diffValue">0</strong> ฿
                                                             </div>
-
-                                                            <!-- เหตุผลของส่วนต่าง -->
-                                                            <div class="form-group row" id="diffNoteSection" style="display:none;">
-                                                                <label class="col-sm-5 col-form-label text-danger"><strong><i class="mdi mdi-comment-alert-outline"></i> ระบุสาเหตุของส่วนต่าง</strong><br><small class="text-muted">(เช่น ลูกค้าให้ทิป, ทอนเงินผิด, ฯลฯ)</small></label>
-                                                                <div class="col-sm-7">
-                                                                    <textarea class="form-control" id="difference_note" rows="2" placeholder="ระบุสาเหตุที่เงินขาดหรือเกิน..." <?= $is_completed ? 'readonly' : '' ?>><?= htmlspecialchars($recon['difference_note'] ?? '') ?></textarea>
-                                                                </div>
-                                                            </div>
-                                                        <?php else: ?>
-                                                            <input type="hidden" id="difference_note" value="">
                                                         <?php endif; ?>
+
+                                                        <!-- ช่องระบุเหตุผล (ทุก role เห็นเมื่อมีส่วนต่าง) -->
+                                                        <div class="form-group row" id="diffNoteSection" style="display:none;">
+                                                            <label class="col-sm-5 col-form-label text-danger">
+                                                                <strong><i class="mdi mdi-comment-alert-outline"></i> ระบุสาเหตุของส่วนต่าง</strong><br>
+                                                                <small class="text-muted">(เช่น ลูกค้าให้ทิป, ทอนเงินผิด, ฯลฯ)</small>
+                                                            </label>
+                                                            <div class="col-sm-7">
+                                                                <textarea class="form-control" id="difference_note" rows="2"
+                                                                    placeholder="ระบุสาเหตุที่เงินขาดหรือเกิน..."
+                                                                    <?= $is_completed ? 'readonly' : '' ?>><?= htmlspecialchars($recon['difference_note'] ?? '') ?></textarea>
+                                                                <?php if (!$is_admin_manager): ?>
+                                                                    <small class="text-muted">หมายเหตุ: ผู้จัดการจะเห็นเหตุผลที่คุณระบุ</small>
+                                                                <?php endif; ?>
+                                                            </div>
+                                                        </div>
 
                                                         <?php if (!$is_completed): ?>
                                                             <div class="text-center mt-4">
@@ -504,16 +528,27 @@ try {
                 var cashHandover = totalCashInDrawer - nextCarry;
                 $('#cash_to_handover').val(cashHandover.toLocaleString('th-TH') + ' ฿');
 
+                // Admin/Manager: แสดงตัวเลขส่วนต่าง
+                // พนักงาน: ไม่เห็นตัวเลข แต่แสดงช่องหมายเหตุเมื่อมีส่วนต่าง
+
+                // คำนวณส่วนต่างสำหรับทุก role (ใช้ตัดสินใจว่าจะแสดง diffNoteSection หรือไม่)
+                var diff = (cashHandover + transfer) - (expectedSales - discountExtra);
+
                 if (!isAdminManager) {
-                    // พนักงานทั่วไปไม่ต้องแสดงการแจ้งเตือนส่วนต่างและหมายเหตุ
-                    $('#diffAlert').hide();
-                    $('#diffNoteSection').hide();
+                    // พนักงาน: ไม่แสดงตัวเลขส่วนต่าง แต่แสดงช่องหมายเหตุถ้ามีส่วนต่าง
+                    if (diff !== 0) {
+                        $('#diffNoteSection').show();
+                    } else {
+                        if (isCompleted && $('#difference_note').val().trim() !== '') {
+                            $('#diffNoteSection').show();
+                        } else {
+                            $('#diffNoteSection').hide();
+                        }
+                    }
                     return;
                 }
 
-                // แบบ A: ส่วนต่าง = (เงินสดส่งมอบ + เงินโอน) - (ยอดขายที่ควรได้ - ยอดส่วนลดรวมเพิ่มเติม)
-                var diff = (cashHandover + transfer) - (expectedSales - discountExtra);
-
+                // Admin: คำนวณและแสดง diffAlert
                 $('#diffAlert').show();
                 var diffEl = $('#diffValue');
 
