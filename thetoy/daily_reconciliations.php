@@ -139,10 +139,8 @@ try {
                                         <tr>
                                             <th>วันที่</th>
                                             <th>ยอดขายที่ควรได้</th>
-                                            <th>เงินทอนยกมา</th>
                                             <th>ยอดเงินสดส่งมอบ</th>
                                             <th>ยอดเงินโอน</th>
-                                            <th>เงินทอนยกไป</th>
                                             <th>ส่วนต่าง</th>
                                             <th>สถานะ</th>
                                             <th>จัดการ</th>
@@ -157,16 +155,8 @@ try {
                                             <tr>
                                                 <td><strong><?= date('d/m/Y', strtotime($r['reconciliation_date'])) ?></strong></td>
                                                 <td><?= number_format($r['total_expected_sales'], 2) ?> ฿</td>
-                                                <td><?= number_format($r['carry_forward_cash'], 2) ?> ฿</td>
                                                 <td><?= number_format($r['actual_cash_amount'], 2) ?> ฿</td>
                                                 <td><?= number_format($r['actual_transfer_amount'], 2) ?> ฿</td>
-                                                <td>
-                                                    <?php if($r['status'] == 'completed' && $r['next_day_carry_forward'] > 0): ?>
-                                                        <span class="badge badge-warning" style="font-size: 0.9em;"><?= number_format($r['next_day_carry_forward'], 0) ?> ฿</span>
-                                                    <?php else: ?>
-                                                        -
-                                                    <?php endif; ?>
-                                                </td>
                                                 <td class="<?= $diffClass ?>"><strong><?= number_format($r['difference_amount'], 2) ?> ฿</strong></td>
                                                 <td>
                                                     <?php if($r['status'] == 'completed'): ?>
