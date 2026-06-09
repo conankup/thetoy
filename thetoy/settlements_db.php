@@ -108,7 +108,21 @@ try {
             }
         }
 
-        echo json_encode(['status' => 'success', 'data' => $preview]);
+        // คำนวณยอดรวมค่าใช้จ่ายทั้งหมดของร้านค้าในเดือนนี้
+        $stmtExpenses = $conn->prepare("
+            SELECT COALESCE(SUM(total_expenses), 0)
+            FROM daily_reconciliations
+            WHERE status = 'completed'
+              AND reconciliation_date BETWEEN ? AND ?
+        ");
+        $stmtExpenses->execute([$start_month, $end_month]);
+        $total_expenses = floatval($stmtExpenses->fetchColumn());
+
+        echo json_encode([
+            'status' => 'success', 
+            'data' => $preview,
+            'total_expenses' => $total_expenses
+        ]);
         exit;
     }
 
