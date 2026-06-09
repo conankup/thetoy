@@ -4,8 +4,14 @@ require_once '../connectDB.php';
 checkRole([1, 2, 3]);
 
 try {
-    // ดึงสินค้าที่ active ทั้งหมด
-    $stmt = $conn->prepare("SELECT barcode, name, price FROM products WHERE status = 'active' AND barcode != '' ORDER BY name ASC");
+    // ดึงสินค้าที่ active ทั้งหมด โดยเรียงลำดับตามเจ้าของสินค้าและชื่อสินค้าตามรายงานสต๊อกสินค้าคงเหลือ
+    $stmt = $conn->prepare("
+        SELECT p.barcode, p.name, p.price 
+        FROM products p
+        LEFT JOIN item_owners o ON p.owner_id = o.id
+        WHERE p.status = 'active' AND p.barcode != '' 
+        ORDER BY o.name ASC, p.name ASC
+    ");
     $stmt->execute();
     $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
