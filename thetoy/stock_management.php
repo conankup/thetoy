@@ -9,7 +9,7 @@ try {
     $products = [];
     // ดึงข้อมูลสินค้าทั้งหมดเผื่อโชว์ในตาราง (optional, อาจจะดึงเฉพาะตัวที่มีการเคลื่อนไหวล่าสุด)
     // แต่เพื่อความง่าย ดึงสินค้าทั้งหมดมาโชว์สต๊อกปัจจุบัน
-    $stmt = $conn->prepare("SELECT id, barcode, name, storage_qty, front_qty, image FROM products WHERE status = 'active' ORDER BY name ASC");
+    $stmt = $conn->prepare("SELECT id, barcode, name, price, storage_qty, front_qty, image FROM products WHERE status = 'active' ORDER BY name ASC");
     $stmt->execute();
     $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
@@ -323,6 +323,7 @@ try {
                                                         <span class="d-inline d-md-none">บาร์โค้ด</span>
                                                     </th>
                                                     <th>ชื่อสินค้า</th>
+                                                    <th class="text-right">ราคาขาย</th>
                                                     <th class="text-center">
                                                         <span class="d-none d-md-inline">ของในตู้ (Storage)</span>
                                                         <span class="d-inline d-md-none"><i class="mdi mdi-archive-outline"></i> ในตู้</span>
@@ -342,6 +343,9 @@ try {
                                                                 <img src="uploads/<?= htmlspecialchars($p['image']) ?>" class="view-img" data-src="uploads/<?= htmlspecialchars($p['image']) ?>" alt="" style="width:40px; height:40px; object-fit:cover; border-radius:5px; margin-right:10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); cursor: zoom-in;" title="คลิกเพื่อขยายรูปภาพ">
                                                             <?php endif; ?>
                                                             <strong style="font-size: 1.05em;"><?= htmlspecialchars($p['name']) ?></strong>
+                                                        </td>
+                                                        <td class="text-right" style="vertical-align: middle; font-weight: 600; color: #2d3748;">
+                                                            <?= number_format($p['price'], 2) ?> ฿
                                                         </td>
                                                         <td class="text-center" style="vertical-align: middle;">
                                                             <span class="badge badge-primary" style="font-size: 1.1em; padding: 8px 16px; border-radius: 20px; box-shadow: 0 2px 5px rgba(100, 100, 255, 0.2);">
