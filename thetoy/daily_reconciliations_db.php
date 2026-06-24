@@ -21,6 +21,15 @@ try {
             exit;
         }
         
+        // เช็คว่ามีรายการ draft ค้างอยู่หรือไม่ (เพื่อให้แน่ใจว่าปิดยอดตามลำดับวัน และยอดยกมาถูกต้อง)
+        $stmtDraft = $conn->prepare("SELECT reconciliation_date FROM daily_reconciliations WHERE status = 'draft' LIMIT 1");
+        $stmtDraft->execute();
+        $existingDraftDate = $stmtDraft->fetchColumn();
+        if ($existingDraftDate) {
+            echo json_encode(['status' => 'error', 'message' => 'ไม่สามารถสร้างรายการใหม่ได้ เนื่องจากยังมีรายการของวันที่ ' . date('d/m/Y', strtotime($existingDraftDate)) . ' ที่ยังนับสต๊อกไม่เสร็จ (Draft) ค้างอยู่']);
+            exit;
+        }
+
         // เช็คว่ามี draft หรือ completed ของวันนี้หรือยัง
         $stmtCheck = $conn->prepare("SELECT id FROM daily_reconciliations WHERE reconciliation_date = :date");
         $stmtCheck->execute([':date' => $today]);

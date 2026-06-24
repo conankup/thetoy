@@ -10,13 +10,25 @@ $user_id = $_SESSION['user_id'];
 $today = date('Y-m-d');
 
 try {
-    // 1. เช็คว่ามีรายการของวันนี้หรือยัง
+    // 1. ตรวจสอบว่ามีรายการที่ยังค้างอยู่ในสถานะ draft (รวมถึงของวันก่อนหน้า) หรือไม่
+    // โดยดึงรายการ draft ที่เก่าที่สุดขึ้นมาดำเนินการก่อน เพื่อป้องกันปัญหายอดยกมา/ยอดคงเหลือไม่ต่อเนื่อง
+    $stmtDraft = $conn->prepare("SELECT id FROM daily_reconciliations WHERE status = 'draft' ORDER BY reconciliation_date ASC LIMIT 1");
+    $stmtDraft->execute();
+    $draft = $stmtDraft->fetch(PDO::FETCH_ASSOC);
+    
+    if ($draft) {
+        // หากพบรายการ draft ค้างอยู่ ให้พาพนักงานไปทำรายการนั้นต่อจนเสร็จ
+        header("Location: stock_count.php?id=" . $draft['id']);
+        exit;
+    }
+    
+    // 2. เช็คว่ามีรายการของวันนี้หรือยัง (หากเข้ามาตรงนี้ แสดงว่าไม่มีรายการ draft ค้างอยู่แล้ว แต่ของวันนี้อาจจะเป็น completed ไปแล้ว)
     $stmtCheck = $conn->prepare("SELECT id FROM daily_reconciliations WHERE reconciliation_date = :date");
     $stmtCheck->execute([':date' => $today]);
     $existing = $stmtCheck->fetch(PDO::FETCH_ASSOC);
     
     if ($existing) {
-        // ถ้ามีอยู่แล้ว ไปหน้านับสต๊อกของวันนี้เลย
+        // ถ้ามีอยู่แล้ว (และได้รับการยืนยันปิดยอดแล้ว) ไปหน้ารายละเอียดการปิดยอดของวันนี้
         header("Location: stock_count.php?id=" . $existing['id']);
         exit;
     }
