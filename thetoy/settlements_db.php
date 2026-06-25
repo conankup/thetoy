@@ -183,7 +183,38 @@ try {
         $gp_rate = floatval($owner['gp_rate']);
         $gp_amount = round($total_sales * ($gp_rate / 100), 2);
         $net_sales = round($total_sales - $gp_amount, 2);
-        $net_payable = round($net_sales - $total_withdrawn, 2);
+
+        if (strtolower($owner['name']) === 'thetoy') {
+            // คำนวณ GP ของผู้ฝากขายรายอื่นทั้งหมดในเดือนนี้
+            $stmtGpOthers = $conn->prepare("
+                SELECT COALESCE(SUM(dsc.expected_revenue * io.gp_rate / 100), 0)
+                FROM daily_stock_counts dsc
+                JOIN products p ON dsc.product_id = p.id
+                JOIN item_owners io ON p.owner_id = io.id
+                JOIN daily_reconciliations dr ON dsc.daily_reconciliation_id = dr.id
+                WHERE LOWER(io.name) != 'thetoy'
+                  AND dr.status = 'completed'
+                  AND dr.reconciliation_date BETWEEN ? AND ?
+            ");
+            $stmtGpOthers->execute([$start_month, $end_month]);
+            $gp_others = floatval($stmtGpOthers->fetchColumn());
+
+            // คำนวณค่าใช้จ่ายร้านค้าทั้งหมดในเดือนนี้
+            $stmtExpenses = $conn->prepare("
+                SELECT COALESCE(SUM(total_expenses), 0)
+                FROM daily_reconciliations
+                WHERE status = 'completed'
+                  AND reconciliation_date BETWEEN ? AND ?
+            ");
+            $stmtExpenses->execute([$start_month, $end_month]);
+            $total_expenses = floatval($stmtExpenses->fetchColumn());
+
+            // กำไรสุทธิของร้าน = GP รายอื่น + รายได้สุทธิ thetoy - ค่าใช้จ่ายร้าน
+            $shop_net_profit = $gp_others + $net_sales - $total_expenses;
+            $net_payable = round($shop_net_profit - $total_withdrawn, 2);
+        } else {
+            $net_payable = round($net_sales - $total_withdrawn, 2);
+        }
 
         // บันทึกลงฐานข้อมูล
         $stmtInsert = $conn->prepare("
@@ -224,6 +255,11 @@ try {
 
         foreach ($owners as $owner) {
             $owner_id = $owner['id'];
+
+            // ข้ามถ้าเป็นเจ้าของร้าน (TheToy) เพื่อให้แยกปิดยอดรายบุคคลต่างหาก
+            if (strtolower($owner['name']) === 'thetoy') {
+                continue;
+            }
 
             // เช็คว่าเคยปิดยอดหรือยัง
             $stmtCheck = $conn->prepare("SELECT id FROM owner_monthly_settlements WHERE owner_id = ? AND settlement_month = ?");
