@@ -118,10 +118,21 @@ try {
         $stmtExpenses->execute([$start_month, $end_month]);
         $total_expenses = floatval($stmtExpenses->fetchColumn());
 
+        // คำนวณยอดรวมเงินขาด/เกินทั้งหมดประจำเดือนนี้
+        $stmtDiff = $conn->prepare("
+            SELECT COALESCE(SUM(difference_amount), 0)
+            FROM daily_reconciliations
+            WHERE status = 'completed'
+              AND reconciliation_date BETWEEN ? AND ?
+        ");
+        $stmtDiff->execute([$start_month, $end_month]);
+        $total_difference = floatval($stmtDiff->fetchColumn());
+
         echo json_encode([
             'status' => 'success', 
             'data' => $preview,
-            'total_expenses' => $total_expenses
+            'total_expenses' => $total_expenses,
+            'total_difference' => $total_difference
         ]);
         exit;
     }
@@ -209,8 +220,18 @@ try {
             $stmtExpenses->execute([$start_month, $end_month]);
             $total_expenses = floatval($stmtExpenses->fetchColumn());
 
-            // กำไรสุทธิของร้าน = GP รายอื่น + รายได้สุทธิ thetoy - ค่าใช้จ่ายร้าน
-            $shop_net_profit = $gp_others + $net_sales - $total_expenses;
+            // คำนวณเงินขาด/เกินรวมทั้งหมดประจำเดือนนี้
+            $stmtDiff = $conn->prepare("
+                SELECT COALESCE(SUM(difference_amount), 0)
+                FROM daily_reconciliations
+                WHERE status = 'completed'
+                  AND reconciliation_date BETWEEN ? AND ?
+            ");
+            $stmtDiff->execute([$start_month, $end_month]);
+            $total_difference = floatval($stmtDiff->fetchColumn());
+
+            // กำไรสุทธิของร้าน = GP รายอื่น + รายได้สุทธิ thetoy - ค่าใช้จ่ายร้าน + เงินขาด/เกินรวม
+            $shop_net_profit = $gp_others + $net_sales - $total_expenses + $total_difference;
             $net_payable = round($shop_net_profit - $total_withdrawn, 2);
         } else {
             $net_payable = round($net_sales - $total_withdrawn, 2);
